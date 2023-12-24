@@ -18,8 +18,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,9 +31,6 @@ import com.example.gclo.Models.UserModel;
 import com.example.gclo.R;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-
-
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -47,18 +42,16 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 
 public class EditProfileFragment extends Fragment {
-
-    private static final int CAMERA_REQUEST_CODE = 1;
     private static final int GALLERY_REQUEST_CODE = 2;
     private static final int REQUEST_CHOOSER = 3;
     FirebaseAuth auth;
     Button btnCancel, btnSave;
 
-    EditText etEPAddress, etEPEmail, etEPPhone, etEPPost, etEPUsername;
-    FirebaseDatabase firebaseDatabase;
+    EditText etEPAddress, etEPEmail, etEPPhone, etEPPost, etEPGender;
     FirebaseUser firebaseUser;
     Uri imageUri;
     ImageView imgEPProfileImage;
@@ -69,15 +62,10 @@ public class EditProfileFragment extends Fragment {
     TextView tvEPName, tvEPUsername;
     StorageReference storageReference;
     StorageTask uploadTask;
-    RadioGroup radioGroupGender;
-    RadioButton radioButtonGender;
     View view;
 
-
-    String userGender,currentName;
+    String userGender;
     UserModel userModel;
-
-//    String userGender;
 
 
     @Override
@@ -93,10 +81,10 @@ public class EditProfileFragment extends Fragment {
         etEPPost = view.findViewById(R.id.etEPPost);
         etEPAddress = view.findViewById(R.id.etEPAddress);
         etEPPhone = view.findViewById(R.id.etEPPhone);
+        etEPGender = view.findViewById(R.id.etEPGender);
 
         btnSave = view.findViewById(R.id.btnSave);
         btnCancel = view.findViewById(R.id.btnCancel);
-        radioGroupGender = view.findViewById(R.id.radioGroupGender);
 
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
@@ -106,33 +94,19 @@ public class EditProfileFragment extends Fragment {
         progressDialog = new ProgressDialog(getContext());
         storageReference = FirebaseStorage.getInstance().getReference("/profile_photos/");
 
-
-        readCurrentUserData();
-        getUserInfo();
-
         tvEPChangeProfile.setOnClickListener(v -> {
 //            galleryIntent();
             openImageChooser();
         });
 
         btnSave.setOnClickListener(v -> {
-//            try {
-//                insertCurrentUserData();
-//            }catch (Exception e){
-//                Toast.makeText(getContext(), "Select gender", Toast.LENGTH_SHORT).show();
-//            }
-
-
-//            insertCurrentUserData();
-            String email = etEPEmail.getText().toString();
-            String post = etEPPost.getText().toString();
-            String address = etEPAddress.getText().toString();
-            String phoneNumber = etEPPhone.getText().toString();
-            save(email, post, address, phoneNumber);
+            userGender = etEPGender.getText().toString();
+            save(etEPEmail.getText().toString(), etEPPost.getText().toString(), etEPAddress.getText().toString(), etEPPhone.getText().toString(), userGender);
             readCurrentUserData();
             replaceFragment(new ProfileFragment());
         });
-
+        readCurrentUserData();
+        getUserInfo();
         btnCancel.setOnClickListener(v -> replaceFragment(new ProfileFragment()));
 
         // Set up onBackPressed callback
@@ -154,12 +128,6 @@ public class EditProfileFragment extends Fragment {
         return view;
     }//onCreateView
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        insertCurrentUserData();
-
-    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -175,32 +143,16 @@ public class EditProfileFragment extends Fragment {
         fragmentContext = null;
     }
 
-    // get the current user data and save the data into local storage(SharedPreferences Database)
-    public void insertCurrentUserData() {
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("Current", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        editor.putString("name", tvEPName.getText().toString());
-        editor.putString("username", tvEPUsername.getText().toString());
-        editor.putString("post", etEPPost.getText().toString());
-        editor.putString("email", etEPEmail.getText().toString());
-        editor.putString("address", etEPAddress.getText().toString());
-        editor.putString("phoneNumber", etEPPhone.getText().toString());
-        editor.putString("gender", userGender);
-        editor.commit();
-        Log.e("localData", "current user data added");
-    }
-
     public void readCurrentUserData() {
 //        get all the current user data from the local storage database
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("Current", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("Current", Context.MODE_PRIVATE);
         String name = sharedPreferences.getString("name", "no name");
         String username = sharedPreferences.getString("username", "no username");
         String post = sharedPreferences.getString("post", "post");
         String email = sharedPreferences.getString("email", "");
         String address = sharedPreferences.getString("address", "local address");
         String phoneNumber = sharedPreferences.getString("phoneNumber", "1234567890");
-        String gender = sharedPreferences.getString("gender", "Male");
+        String gender = sharedPreferences.getString("gender", "");
 
 //        set the all current user data into layout
         tvEPName.setText(name);
@@ -209,23 +161,8 @@ public class EditProfileFragment extends Fragment {
         etEPEmail.setText(email);
         etEPAddress.setText(address);
         etEPPhone.setText(phoneNumber);
+        etEPGender.setText(gender);
         Log.e("localData", "read successfully");
-        if (gender != null) {
-            if (gender.equals("Male")) {
-                radioGroupGender.check(R.id.radioButtonMale);
-            } else if (gender.equals("Female")) {
-                radioGroupGender.check(R.id.radioButtonFemale);
-                Log.e("localData", "read successfully");
-                if (gender != null) {
-                    if (gender.equals("Male")) {
-                        radioGroupGender.check(R.id.radioButtonMale);
-                    } else if (gender.equals("Female")) {
-                        radioGroupGender.check(R.id.radioButtonFemale);
-                    }
-                }
-
-            }
-        }
     }
 
     // get user information from database and show in the page
@@ -237,33 +174,46 @@ public class EditProfileFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                 try {
-                    if (databaseReference != null) {
-//                        all the data of the user are added in UserModel class. So, we are getting the data from the UserModel
-//                        class
-                        userModel = snapshot.getValue(UserModel.class);
-                        assert userModel != null;
-                        tvEPName.setText(userModel.getName());
-                        tvEPUsername.setText(userModel.getUsername());
-                        etEPEmail.setText(userModel.getEmail());// get data and display
+//                   all the data of the user are added in UserModel class. So, we are getting the data from the UserModel class
+                    userModel = snapshot.getValue(UserModel.class);
+                    assert userModel != null;
+                    String name = userModel.getName();
+                    String username = userModel.getUsername();
+                    String email = userModel.getEmail();
+                    String post = userModel.getPost();
+                    String address = userModel.getAddress();
+                    String phone = userModel.getPhoneNumber();
+                    String gender = userModel.getGender();
 
-                        etEPAddress.setText(userModel.getAddress());
-                        etEPPhone.setText(userModel.getPhoneNumber());
-                        etEPPost.setText(userModel.getPost());
+                    // get the current user data and save the data into local storage(SharedPreferences Database)
+                    SharedPreferences sharedPreferences = requireContext().getSharedPreferences("Current", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                        if (userModel.getGender() != null) {
-                            if (userModel.getGender().equals("Male")) {
-                                radioGroupGender.check(R.id.radioButtonMale);
-                            } else {
-                                radioGroupGender.check(R.id.radioButtonFemale);
-                            }
-                            if (userModel.getImageUrl() != null && !userModel.getImageUrl().equals("default")) {
-                                Glide.with(getContext()).load(userModel.getImageUrl()).into(imgEPProfileImage);
-                            } else {
-                                imgEPProfileImage.setImageResource(R.drawable.man);
-                            }
-                        }
+                    editor.putString("name", name);
+                    editor.putString("username", username);
+                    editor.putString("post", post);
+                    editor.putString("email", email);
+                    editor.putString("address", address);
+                    editor.putString("phoneNumber", phone);
+                    editor.putString("gender", gender);
+                    Log.e("localGender", "Selected gender: " + gender);
+                    editor.apply();
+                    Log.e("localData", "current user data added");
+
+
+                    tvEPName.setText(name);
+                    tvEPUsername.setText(username);
+                    etEPEmail.setText(email);// get data and display
+
+                    etEPAddress.setText(address);
+                    etEPPhone.setText(phone);
+                    etEPPost.setText(post);
+                    etEPGender.setText(gender);
+
+                    if (userModel.getImageUrl() != null && !userModel.getImageUrl().equals("default")) {
+                        Glide.with(requireContext()).load(userModel.getImageUrl()).into(imgEPProfileImage);
                     } else {
-                        readCurrentUserData();
+                        imgEPProfileImage.setImageResource(R.drawable.man);
                     }
                 } catch (Exception e) {
 //                    Toast.makeText(getContext(), "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -281,11 +231,8 @@ public class EditProfileFragment extends Fragment {
 
     //            public void save () {
 // get data from users and upload changed data on the database
-    public void save(String email, String post, String address, String phoneNumber) {
-        // Get the selected gender from the radio button
-        int genderId = radioGroupGender.getCheckedRadioButtonId();
-        radioButtonGender = view.findViewById(genderId);
-        userGender = radioButtonGender.getText().toString();
+    public void save(String email, String post, String address, String phoneNumber, String gender) {
+
         DatabaseReference databaseReference = FirebaseDatabase.getInstance("https://gps-application-de939-default-rtdb.firebaseio.com/").getReference("Users").child(firebaseUser.getUid());
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
 
@@ -300,50 +247,26 @@ public class EditProfileFragment extends Fragment {
 
                 HashMap<String, String> hashMap = new HashMap<>();
 //                hashMap.put("id",firebaseUser.getUid());
-                hashMap.put("name",userModel.getName());
+                hashMap.put("name", userModel.getName());
                 hashMap.put("username", userModel.getUsername());
                 hashMap.put("email", email);
                 hashMap.put("imageUrl", userModel.getImageUrl());
                 hashMap.put("post", post);// get data and save into realtime database
                 hashMap.put("address", address);
                 hashMap.put("phoneNumber", phoneNumber);
-                hashMap.put("gender", userGender);
-
+                hashMap.put("gender", gender);
+                Log.d("Gender", "Selected Gender: " + gender);
 
                 databaseReference.setValue(hashMap).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         if (isAdded() && getContext() != null) {
                             Toast.makeText(getContext(), "Profile Updated", Toast.LENGTH_SHORT).show();
-//                            insertCurrentUserData();
-//                        requireActivity().finish();
                         }
                     } else {
-//                                    if (isAdded() && getContext() != null) {
-//                                        Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
-//                                    }
-                        int genderId = radioGroupGender.getCheckedRadioButtonId();
-                        radioButtonGender = view.findViewById(genderId);
-                        radioGroupGender.check(R.id.radioButtonMale);
-                        userGender = radioButtonGender.getText().toString();
+                        Toast.makeText(getContext(), "Failed to update profile", Toast.LENGTH_SHORT).show();
                     }
                 });
-//                    databaseReference.setValue(hashMap).addOnCompleteListener(task -> {
-//                        if (task.isSuccessful()) {
-//                            if (isAdded() && getContext() != null) {
-//                                Toast.makeText(getContext(), "Profile Updated", Toast.LENGTH_SHORT).show();
-//                            insertCurrentUserData();
-////                        requireActivity().finish();
-//                            }
-//                        } else {
-//                            if (isAdded() && getContext() != null) {
-//                                Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
-//                            }
-//                            int genderId = radioGroupGender.getCheckedRadioButtonId();
-//                            radioButtonGender = view.findViewById(genderId);
-//                            radioGroupGender.check(R.id.radioButtonMale);
-//                            userGender = radioButtonGender.getText().toString();
-//                        }
-//                    });
+//
             }
 
             @Override
@@ -363,7 +286,8 @@ public class EditProfileFragment extends Fragment {
     public void openImageChooser() {
 
         Intent pickIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        pickIntent.setType("image/*");
+        pickIntent.setDataAndType(imageUri, "image/*");
+//        pickIntent.setType("image/*"); // or use instead of above line
         Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
 
@@ -372,64 +296,35 @@ public class EditProfileFragment extends Fragment {
         startActivityForResult(chooseIntent, REQUEST_CHOOSER);
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-
-            imageUri = data.getData();
-            imgEPProfileImage.setImageURI(imageUri);
-            uploadProfileImage();
-
-        } else {
-
+        if (resultCode == RESULT_OK && data != null) {
+            // Handle the chosen image from either camera or gallery
+            if (requestCode == REQUEST_CHOOSER) {
+                if (data.getData() != null) {
+                    // Image from gallery
+                    // Uri selectedImageUri = data.getData();
+                    imageUri = data.getData();
+                    imgEPProfileImage.setImageURI(imageUri);
+                    uploadProfileImage();
+                    Log.e("uploadImage", "Uploaded from gallery");
+                } else {
+                    // Image from camera
+                    Bundle extras = data.getExtras();
+                    if (extras != null) {
+                        Bitmap imageBitmap = (Bitmap) extras.get("data");
+                        assert imageBitmap != null;
+                        imageUri = getImageUri(requireContext(), imageBitmap);
+                        imgEPProfileImage.setImageURI(imageUri);
+                        uploadProfileImage();
+                        Log.e("uploadImage", "Uploaded from camera");
+                    }
+                }
+            }
         }
-        Bundle bundle = data.getExtras();
-        Bitmap bitmapImage = (Bitmap) bundle.get("data");
-        imgEPProfileImage.setImageBitmap(bitmapImage);
-        uploadProfileImage();
-
     }
-
-
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-//            imageUri = data.getData();
-//            imgEPProfileImage.setImageURI(imageUri);
-//            uploadProfileImage();
-//        }else{
-//            Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
-//        }
-//    }
-
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if (resultCode == RESULT_OK && data != null) {
-//            // Handle the chosen image from either camera or gallery
-//            if (requestCode == REQUEST_CHOOSER) {
-//                if (data != null && data.getData() != null) {
-//                    // Image from gallery
-//                    // Uri selectedImageUri = data.getData();
-//                        imageUri = data.getData();
-//                    imgEPProfileImage.setImageURI(imageUri);
-//                    uploadProfileImage();
-//                    Log.e("uploadImage", "Uploaded");
-//                } else {
-//                    // Image from camera
-//                    Bundle extras = data.getExtras();
-//                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-//                    imgEPProfileImage.setImageBitmap(imageBitmap);
-//                    uploadProfileImage();
-//                    Log.e("uploadImage", "Uploaded");
-//                }
-//            }
-//        }
-//    }
 
     public void replaceFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
@@ -437,16 +332,14 @@ public class EditProfileFragment extends Fragment {
         fragmentTransaction.commit();
     }
 
-
-    //    Convert bitmap image to URI
-    /*
+    // Convert bitmap image to URI
     private Uri getImageUri(Context context, Bitmap bitmap) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Title", null);
         return Uri.parse(path);
     }
-    */
+
     private void uploadProfileImage() {
         progressDialog.setMessage("Uploading");
         progressDialog.show();
@@ -456,6 +349,7 @@ public class EditProfileFragment extends Fragment {
 
             uploadTask.continueWithTask(task -> {
                 if (!task.isSuccessful()) {
+                    progressDialog.dismiss();
                     throw task.getException();
                 }
                 return fileReference.getDownloadUrl();
@@ -472,10 +366,8 @@ public class EditProfileFragment extends Fragment {
         }
     }
 
-// we have created this method to save the image in the firebase storage
-
+    // we have created this method to save the image in the firebase storage
     private void saveData(String myUri, ProgressDialog progressDialog) {
-//        final  = null;
         final DatabaseReference reference = FirebaseDatabase.getInstance("https://gps-application-de939-default-rtdb.firebaseio.com/").getReference("Users").child(this.firebaseUser.getUid());
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
 

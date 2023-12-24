@@ -103,6 +103,7 @@ public class ProfileFragment extends Fragment {
         fragmentTransaction.commit();
     }
     public void readLocalCurrentUserData() {
+
 //        Read current user data from local storage SQlite database
         SharedPreferences sp = getContext().getSharedPreferences("Current", Context.MODE_PRIVATE);
         String name = sp.getString("name", "local name");

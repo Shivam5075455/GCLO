@@ -1,8 +1,7 @@
 package com.example.gclo.Fragments.NavigationFragments;
 
-
-import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +20,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.gclo.Adapters.PersonDetails.AllPersonDetailsAdapter;
 import com.example.gclo.Database.PersonDatabaseHelper;
@@ -50,6 +50,7 @@ public class PersonDetailsFragment extends Fragment {
     AllPersonDetailsAdapter allPersonDetailsAdapter;
     PersonDatabaseHelper personDatabaseHelper;
     String localId;
+    SwipeRefreshLayout swiperefreshlayoutPersonDetails;
 
 
     @Override
@@ -60,15 +61,14 @@ public class PersonDetailsFragment extends Fragment {
 
 //        Button btnRead = view.findViewById(R.id.btnRead);
         rvPersonDetails = view.findViewById(R.id.rvPersonDetails);
+        swiperefreshlayoutPersonDetails = view.findViewById(R.id.swiperefreshlayoutPersonDetails);
         searchView = view.findViewById(R.id.searchView);
         persondetailModelList = new ArrayList<>();
         personDatabaseHelper = new PersonDatabaseHelper(getContext());
 
-
         showDetails();
         readData();
-
-
+        refresh();
         // Set up onBackPressed callback
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override
@@ -104,7 +104,20 @@ public class PersonDetailsFragment extends Fragment {
         return view;
     }//onCreateView
 
-
+    private void refresh() {
+        swiperefreshlayoutPersonDetails.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+//                readData();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        swiperefreshlayoutPersonDetails.setRefreshing(false);
+                    }
+                }, 100);
+            }
+        });
+    }
 
     private void filterList(String newText) {
         List<PersondetailModel> filterPersonDetail = new ArrayList<>();
@@ -129,7 +142,6 @@ public class PersonDetailsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-//        readData();
     }
 
 
@@ -139,7 +151,6 @@ public class PersonDetailsFragment extends Fragment {
         // Retrieve the SearchView and set its listeners
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
-
 
         return true;
     }
@@ -155,10 +166,6 @@ public class PersonDetailsFragment extends Fragment {
 
                 PersondetailModel persondetailModel = snapshot.getValue(PersondetailModel.class);
                 assert persondetailModel != null;
-                if (snapshot.exists()) {
-
-                }
-
 
                 if (snapshot.exists()) {
                     for (DataSnapshot userDataSnapshot : snapshot.getChildren()) {
@@ -175,10 +182,10 @@ public class PersonDetailsFragment extends Fragment {
 //                            persondetailModelList.add(?new PersondetailModel(id, name, username, email, gender,"27.345678","72.345678","in","200m"));
                             PersonDatabaseHelper databaseHelper = new PersonDatabaseHelper(getContext());
                             databaseHelper.insertPersonData(name, username, email, post, gender.substring(0, 1));
-                            // Read data from the local database after insertion
-//                            readData();
-//                            databaseHelper.updatePersonData(username, email, post, gender);
                             Log.e("insertData", "Local data created");
+//                          update the data
+                            databaseHelper.updatePersonData(username, email, post, gender);
+                            Log.e("localUpdateData", "local data updated");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -227,7 +234,6 @@ public class PersonDetailsFragment extends Fragment {
         }
         Log.e("readdata", "Local data read successfully");
     }//readData()
-
 
     public void readData1(PersonDatabaseHelper personDatabaseHelper) {
         Cursor cursor = personDatabaseHelper.readData12();

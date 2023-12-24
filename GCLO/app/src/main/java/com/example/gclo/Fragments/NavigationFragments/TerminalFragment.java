@@ -1,6 +1,7 @@
 package com.example.gclo.Fragments.NavigationFragments;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +38,7 @@ public class TerminalFragment extends Fragment {
         btnM3 = view.findViewById(R.id.btnM3);
         btnM4 = view.findViewById(R.id.btnM4);
         btnM5 = view.findViewById(R.id.btnM5);
-
+// this is used to save the message state
         retainedFragment = getOrCreateRetainedFragment();
         tvTerminal.setText("-> " + retainedFragment.getTerminalContent());
         imgTerminalSend.setOnClickListener(v -> {
@@ -51,8 +52,32 @@ public class TerminalFragment extends Fragment {
             }
         });
 
+
+        // Handle back button press
+        view.setFocusableInTouchMode(true);
+        view.requestFocus();
+        view.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+                    // Handle back button press here
+//                    Toast.makeText(getContext(), "Back button pressed", Toast.LENGTH_SHORT).show();
+                    handleBackPressed();
+                    return true; // Consumed the event
+                }
+                return false; // Let the system handle the event
+            }
+        });
+
+
         return view;
     }
+
+    private void handleBackPressed() {
+
+        ((MainActivity) requireActivity()).showExitConfirmationDialog();
+    }
+
 
     private RetainedFragment getOrCreateRetainedFragment() {
         RetainedFragment fragment = (RetainedFragment) getFragmentManager().findFragmentByTag(RetainedFragment.TAG);

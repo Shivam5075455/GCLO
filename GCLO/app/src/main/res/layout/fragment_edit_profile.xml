@@ -13,8 +13,8 @@
         android:layout_height="@dimen/dim_130"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/dim_10"
-        android:src="@drawable/ic_launcher_background"
-        android:scaleType="centerCrop"/>
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_launcher_background" />
 
     <TextView
         android:id="@+id/tvEPChangeProfile"
@@ -31,6 +31,7 @@
         android:layout_marginTop="@dimen/dim_5"
         android:hint="@string/name"
         android:minHeight="48dp" />
+
     <TextView
         android:id="@+id/tvEPUsername"
         android:layout_width="match_parent"
@@ -71,47 +72,15 @@
         android:hint="@string/phone"
         android:minHeight="48dp" />
 
-    <LinearLayout
+    <EditText
+        android:id="@+id/etEPGender"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_marginTop="@dimen/dim_5"
+        android:hint="@string/gender"
+        android:minHeight="48dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:minHeight="@dimen/dim_48"
-            android:text="@string/gender"
-            android:textColor="@color/black"
-            android:textSize="17sp"
-            android:layout_marginStart="@dimen/dim_3"/>
 
-        <RadioGroup
-            android:id="@+id/radioGroupGender"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/dim_20"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/radioButtonMale"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="Male"
-                android:textColor="@color/black"
-                android:textSize="17sp" />
-
-            <RadioButton
-                android:id="@+id/radioButtonFemale"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Female"
-                android:textColor="@color/black"
-                android:textSize="17sp" />
-        </RadioGroup>
-    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

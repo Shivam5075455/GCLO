@@ -2,6 +2,7 @@ package com.example.gclo;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -77,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         verifyUser();
-    }
+    }//oncreate
 
     @Override
     protected void onStart() {
@@ -91,6 +93,27 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         closeBluetoothAdapter();
     }
+
+    public void showExitConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Do you want to exit the application?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User clicked Yes button
+                        finish(); // Close the activity and exit the application
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User clicked No button, do nothing or handle accordingly
+
+                    }
+                });
+
+        // Create the AlertDialog object and show it
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }//showExitConfirmationDialog
 
     public void changeToolbarTitle(String title) {
         ActionBar actionBar = getSupportActionBar();

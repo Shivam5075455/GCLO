@@ -44,7 +44,7 @@ public class PersonDatabaseHelper extends SQLiteOpenHelper {
                 " (PERSON_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "PERSON_NAME TEXT, " +
                 "PERSON_USERNAME TEXT NOT NULL UNIQUE, " +
-                "PERSON_EMAIL TEXT NOT NULL UNIQUE, " +
+                "PERSON_EMAIL TEXT NOT NULL, " +
                 "PERSON_POST TEXT, " +
                 "PERSON_GENDER TEXT)");
 
@@ -139,7 +139,7 @@ public class PersonDatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery("Select * from " + TABLE_NAME, null);
     }
 
-    public boolean updatePersonData(String username, String email, String post, String gender) {
+    public boolean updatePersonData(String username, String email,String post, String gender) {
         long result = 0;
         try{
             SQLiteDatabase db = this.getWritableDatabase();
@@ -149,7 +149,7 @@ public class PersonDatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(PERSON_EMAIL, email);
             contentValues.put(PERSON_POST, post);
             contentValues.put(PERSON_GENDER, gender);
-            result = db.update(TABLE_NAME, contentValues, "username = ?", new String[]{username});
+            result = db.update(TABLE_NAME, contentValues, "PERSON_USERNAME = ?", new String[]{username});
             
         }catch (Exception e){
             e.printStackTrace();

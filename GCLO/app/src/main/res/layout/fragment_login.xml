@@ -42,10 +42,11 @@
 
             <EditText
                 android:id="@+id/etLoginEmail"
-                android:layout_width="@dimen/dim_390"
+                android:layout_width="@dimen/dim_380"
                 android:layout_height="65dp"
                 android:layout_marginTop="38dp"
                 android:autofillHints=""
+                android:layout_marginEnd="@dimen/dim_5"
                 android:background="@color/edit_text_background"
                 android:drawableStart="@drawable/baseline_email_24"
                 android:drawablePadding="8dp"
@@ -58,9 +59,10 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputLayout"
-                android:layout_width="match_parent"
+                android:layout_width="@dimen/dim_395"
                 android:layout_height="wrap_content"
                 android:hint="@string/enter_password"
+
                 app:boxBackgroundMode="none"
                 app:boxStrokeWidth="0dp"
                 app:endIconMode="password_toggle"
@@ -70,7 +72,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/textInputLayoutEdittextPassword"
-                    android:layout_width="@dimen/dim_390"
+                    android:layout_width="@dimen/dim_380"
                     android:layout_height="wrap_content"
                     android:background="@color/edit_text_background"
                     android:inputType="textPassword"
