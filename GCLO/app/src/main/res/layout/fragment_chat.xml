@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parentRelative"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/childRelative"
+        android:padding="@dimen/dim_5" />
+
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_above="@+id/childRelative"-->
+<!--        android:padding="@dimen/dim_5" />-->
+
+    <TextView
+        android:id="@+id/tvReceiveChat"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/receive_data"
+        android:layout_above="@+id/childRelative"
+        />
+
+    <RelativeLayout
+        android:id="@+id/childRelative"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:padding="@dimen/dim_5">
+
+        <EditText
+            android:id="@+id/etWriteMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dim_10"
+            android:layout_marginEnd="@dimen/dim_5"
+            android:layout_toStartOf="@+id/imgSend"
+            android:background="@drawable/edittext_bg"
+            android:hint="@string/write_message"
+            android:minHeight="48dp"
+            android:padding="@dimen/dim_10" />
+
+        <ImageView
+            android:id="@+id/imgSend"
+            android:layout_width="@dimen/dim_35"
+            android:layout_height="@dimen/dim_35"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/dim_5"
+            android:src="@drawable/send_24" />
+    </RelativeLayout>
+</RelativeLayout>

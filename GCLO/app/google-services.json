@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "225518683256",
+    "firebase_url": "https://gps-application-de939-default-rtdb.firebaseio.com",
+    "project_id": "gps-application-de939",
+    "storage_bucket": "gps-application-de939.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:225518683256:android:3e56a1a70efbcceb20198d",
+        "android_client_info": {
+          "package_name": "com.example.gclo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDB6FBT3tC3V7OSweL03JVozVQYYrZCyCU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:225518683256:android:8234305d11b2725b20198d",
+        "android_client_info": {
+          "package_name": "com.example.gpsapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDB6FBT3tC3V7OSweL03JVozVQYYrZCyCU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
