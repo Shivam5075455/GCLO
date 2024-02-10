@@ -4,26 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvChat"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/childRelative"
         android:padding="@dimen/dim_5" />
-
-<!--    <androidx.recyclerview.widget.RecyclerView-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:layout_above="@+id/childRelative"-->
-<!--        android:padding="@dimen/dim_5" />-->
-
-    <TextView
-        android:id="@+id/tvReceiveChat"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/receive_data"
-        android:layout_above="@+id/childRelative"
-        />
 
     <RelativeLayout
         android:id="@+id/childRelative"

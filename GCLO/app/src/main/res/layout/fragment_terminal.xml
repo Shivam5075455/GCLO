@@ -3,13 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tvTerminal"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTerminal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
-        android:layout_above="@+id/viewDivider"
-        android:text="Terminal" />
+        android:layout_above="@+id/btnLinearLayout"
+        android:layout_margin="@dimen/dim_5"/>
 
     <LinearLayout
         android:id="@+id/btnLinearLayout"
