@@ -68,5 +68,7 @@ dependencies {
 
 //    swipe refresh layout
     implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    //    admob
+    implementation ("com.google.android.gms:play-services-ads:22.6.0")
 
 }

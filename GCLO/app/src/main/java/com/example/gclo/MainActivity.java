@@ -1,5 +1,7 @@
 package com.example.gclo;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
@@ -7,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.Window;
@@ -34,9 +37,19 @@ import com.example.gclo.Fragments.NavigationFragments.PersonDetailsFragment;
 import com.example.gclo.Fragments.NavigationFragments.SettingFragment;
 import com.example.gclo.Fragments.NavigationFragments.TerminalFragment;
 import com.example.gclo.Fragments.Profile.ProfileFragment;
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_BLUETOOTH_PERMISSION = 2;
@@ -49,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     Toolbar toolbar;
-
+    private InterstitialAd mInterstitialad;
     FirebaseUser firebaseUser;
     private static final int REQUEST_ENABLE_BT = 1;
 
@@ -68,8 +81,9 @@ public class MainActivity extends AppCompatActivity {
 
         Window window = getWindow();
         window.setStatusBarColor(getColor(R.color.status_bar));
-        checkBluetoothPermission();
         setSupportActionBar(toolbar);
+
+
 
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.nav_open, R.string.nav_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
@@ -79,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         verifyUser();
+//        checkBluetoothPermission();
     }//oncreate
 
     @Override
@@ -86,17 +101,17 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         SharedPreferences sharedPreferences = getSharedPreferences("PREFS", MODE_PRIVATE);
         sharedPreferences.edit().putString("profileID", auth.getCurrentUser().getUid()).apply();
-    }
+    }//onStart
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         closeBluetoothAdapter();
-    }
+    }//onDestroy
 
     public void showExitConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Do you want to exit the application?")
+        builder.setMessage("Do you want to exit?")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // User clicked Yes button
@@ -120,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setTitle(title);
         }
-    }
+    }//changeToolbarTitle
 
     public void verifyUser() {
         FirebaseUser user = auth.getCurrentUser();
@@ -143,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
                     android.Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_BLUETOOTH_PERMISSION);
         }
     }
+// if permission is requested then get a response and handle it
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -151,14 +167,34 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_BLUETOOTH_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, now disable Bluetooth
-                closeBluetoothAdapter();
+//                closeBluetoothAdapter();
             } else {
                 // Permission denied, handle accordingly
                 Toast.makeText(this, "Bluetooth permission denied", Toast.LENGTH_SHORT).show();
+//                create a dialogue to get permission again
+
+//                new AlertDialog.Builder(this)
+//                        .setCancelable(false)
+//                        .setMessage("Location permission is required\nPlease grant")
+//                        .setPositiveButton("Grant", new DialogInterface.OnClickListener(){
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                checkBluetoothPermission();
+//                            }
+//                        })
+//                        .setNegativeButton("Deny", new DialogInterface.OnClickListener(){
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                Toast.makeText(MainActivity.this, "You deny the permission", Toast.LENGTH_SHORT).show();
+//                                MainActivity.this.finish();
+//                            }
+//                        })
+//                        .create();
+
+
             }
         }
-    }
-
+    }//onRequestPermissionsResult
 
     //    @SuppressLint("MissingPermission")
 //    private void closeBluetoothAdapter() {
@@ -167,6 +203,8 @@ public class MainActivity extends AppCompatActivity {
 //            bluetoothAdapter.disable();
 //        }
 //    }
+
+
     @SuppressLint("MissingPermission")
     private void closeBluetoothAdapter() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -204,6 +242,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.menuPersonDetails) {
                 replaceFragments(new PersonDetailsFragment());
                 changeToolbarTitle("Person Details");
+                showInterstitialAd();
 
             } else if (itemId == R.id.menuProfile) {
                 replaceFragments(new ProfileFragment());
@@ -240,4 +279,79 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.frameLayoutContainer, fragment);
         fragmentTransaction.commit();
     }
+
+
+    private void showInterstitialAd(){
+
+        RequestConfiguration requestConfiguration = new RequestConfiguration.Builder()
+                .setTestDeviceIds(Arrays.asList("2E781CC29A08B1744EF62F3A01BBBD70"))
+                .build();
+        MobileAds.setRequestConfiguration(requestConfiguration);
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+        InterstitialAd.load(MainActivity.this, getString(R.string.interstitial_ad_unit_id), adRequest, new InterstitialAdLoadCallback() {
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
+            }
+
+            @Override
+            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                super.onAdLoaded(interstitialAd);
+                mInterstitialad=interstitialAd;
+                interstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                    @Override
+                    public void onAdClicked() {
+                        super.onAdClicked();
+                        Toast.makeText(MainActivity.this, "Ad clicked", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Ad was clicked.");
+                    }
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent();
+                        Log.d(TAG, "Ad dismissed fullscreen content.");
+                        mInterstitialad=null;
+                        Toast.makeText(MainActivity.this, "dismissed fullscreen", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+                        super.onAdFailedToShowFullScreenContent(adError);
+                        Log.e(TAG, "Ad failed to show fullscreen content.");
+                        mInterstitialad = null;
+                        Toast.makeText(MainActivity.this, "failed to show fullscreen", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onAdImpression() {
+                        super.onAdImpression();
+                        Log.d(TAG, "Ad recorded an impression.");
+                    }
+
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        super.onAdShowedFullScreenContent();
+                        Log.d(TAG, "Ad showed fullscreen content.");
+                        Toast.makeText(MainActivity.this, "Ad showed fullscreen", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
+            }//onAdLoaded
+        });
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(mInterstitialad !=null){
+                    mInterstitialad.show(MainActivity.this);
+                }else{
+                    Log.e("ad","ad pending");
+                }
+            }
+        },5000);
+
+    }//showInterstitialad
+
+
 }

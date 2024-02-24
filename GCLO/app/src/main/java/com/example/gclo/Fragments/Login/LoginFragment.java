@@ -1,6 +1,7 @@
 package com.example.gclo.Fragments.Login;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,6 +36,7 @@ public class LoginFragment extends Fragment {
     TextView tvForgotPassword;
     TextView tvSignup;
     EditText etLoginEmail;
+    private Context context;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -46,7 +48,7 @@ public class LoginFragment extends Fragment {
         tvSignup = view.findViewById(R.id.tvLoginSignup);
         etLoginEmail = view.findViewById(R.id.etLoginEmail);
         tvForgotPassword = view.findViewById(R.id.tvForgotPassword);
-
+        context = getContext();
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
 
@@ -69,7 +71,7 @@ public class LoginFragment extends Fragment {
             auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     if (auth.getCurrentUser().isEmailVerified()) {
-                        Toast.makeText(getContext(), "Logged In", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Logged In", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(getContext(), MainActivity.class));
                         Log.e("mainActivity", "Login to Main");
                         requireActivity().finish();

@@ -6,12 +6,16 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.gclo.Models.BtListModel;
 import com.example.gclo.R;
@@ -27,10 +31,17 @@ public class BtListAdapter extends RecyclerView.Adapter<BtListAdapter.viewHolder
 
     List<BtListModel> btListModels;
     Context context;
+//    private AdapterView.OnItemClickListener listener;
+    public OnItemClickListener listener;
 
-    public BtListAdapter(Context context, List<BtListModel> btListModels) {
+    public interface OnItemClickListener {
+        void onItemClick(String deviceName);
+    }
+
+    public BtListAdapter(Context context, List<BtListModel> btListModels, OnItemClickListener listener) {
         this.btListModels = btListModels;
         this.context = context;
+        this.listener = listener;
     }
 
     @Override
@@ -48,16 +59,35 @@ public class BtListAdapter extends RecyclerView.Adapter<BtListAdapter.viewHolder
 //        BluetoothDevice bluetoothDevice = // Get your BluetoothDevice instance
 //                BtListModel btListModel = new BtListModel("DeviceName", "DeviceAddress", bluetoothDevice);
 //        btListModels.add(btListModel);
-
+/*
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("MissingPermission")
             @Override
             public void onClick(View v) {
                 @SuppressLint("MissingPermission") Set<BluetoothDevice> bluetoothDevices = getDefaultAdapter().getBondedDevices();
                 for(BluetoothDevice device: bluetoothDevices){
 //                BluetoothDevice selectedDevice = btListModels.get();
 
+                    String selectedDevice = device.getName();
+//                    Log.d("selectedDevice","Selected device: "+selectedDevice);
                 }
+                // Get the position of the clicked item
+                int selectedDevicePosition = holder.getAdapterPosition();
+                if (selectedDevicePosition != RecyclerView.NO_POSITION) {
+                    // Get the Bluetooth device at the selected position
+                    BtListModel selectedDevice = btListModels.get(selectedDevicePosition);
+                    String deviceName = selectedDevice.getBtName();
+                    String deviceAddress = selectedDevice.getBtAddress();
+                    // Do whatever you need with the selected device and its position
+                    Toast.makeText(v.getContext(), "Selected device position: "+selectedDevicePosition, Toast.LENGTH_SHORT).show();
+                    Log.d("selectedDevice", "Selected device: " + deviceName+" "+deviceAddress);
+                    Log.d("selectedDevicePosition", "Selected device position: " + selectedDevicePosition);
+
+                } else {
+                    Log.e("selectedDevice", "Invalid position");
+                }
+
 //                connectToDevice(selectedDevice);
                 // Get the selected Bluetooth device based on the position
 //                BluetoothDevice selectedDevice = btListModels.get(position).getBluetoothDevice();
@@ -71,6 +101,8 @@ public class BtListAdapter extends RecyclerView.Adapter<BtListAdapter.viewHolder
 //                }
             }
         });
+
+        */
     }
 
     @Override
@@ -95,12 +127,42 @@ public class BtListAdapter extends RecyclerView.Adapter<BtListAdapter.viewHolder
     public class viewHolder extends RecyclerView.ViewHolder {
         TextView tvBtDeviceAddress;
         TextView tvBtDeviceName;
+        RecyclerView recyclerView;
 
         public viewHolder(View view) {
             super(view);
-
             tvBtDeviceName =  view.findViewById(R.id.tvBtDeviceName);
             tvBtDeviceAddress =  view.findViewById(R.id.tvBtDeviceAddress);
+            recyclerView =  view.findViewById(R.id.recyclerView);
+
+
+            // Set click listener on the item view
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Get the adapter position of the clicked item
+                    int position = getAdapterPosition();
+                    // Check if the position is valid
+                    if (position != RecyclerView.NO_POSITION) {
+                        // Retrieve the Bluetooth device name at the clicked position
+                        String deviceName = btListModels.get(position).getBtName();
+                        // Invoke the onItemClick method of the listener interface
+                        listener.onItemClick(deviceName);
+                    }
+                }
+            });
+
+
         }
+        /*
+        public void bind(final BtListModel item, final  OnItemClickListener listener) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onItemClick(item.getBtName());
+                }
+            });
+        }//bind
+*/
     }
-}
+}//BtListAdapter

@@ -30,6 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dim_5"
         android:hint="@string/name"
+        android:visibility="gone"
         android:minHeight="48dp" />
 
     <TextView
@@ -38,13 +39,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dim_5"
         android:hint="@string/username"
+        android:visibility="gone"
         android:minHeight="48dp" />
 
     <EditText
         android:id="@+id/etEPEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dim_5"
+        android:layout_marginTop="@dimen/dim_25"
         android:hint="@string/email"
         android:minHeight="48dp" />
 

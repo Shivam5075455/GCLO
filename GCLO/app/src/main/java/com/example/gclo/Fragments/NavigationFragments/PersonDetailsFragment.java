@@ -1,5 +1,7 @@
 package com.example.gclo.Fragments.NavigationFragments;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import android.database.Cursor;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.FragmentTransaction;
@@ -27,6 +30,14 @@ import com.example.gclo.Database.PersonDatabaseHelper;
 import com.example.gclo.MainActivity;
 import com.example.gclo.Models.PersondetailModel;
 import com.example.gclo.R;
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,6 +46,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -259,6 +271,7 @@ public class PersonDetailsFragment extends Fragment {
         fragmentTransaction.replace(R.id.frameLayoutContainer, fragment);
         fragmentTransaction.commit();
     }
+
 
 
 }
