@@ -4,7 +4,7 @@ package com.example.gclo.Models;
 public class TerminalMessageModel {
     String message;
     String sendtBy;
-    public static String sent_by_user = "user";
+    public static String received_by_user = "user";
     public static String sent_by_admin = "admin";
 
     public TerminalMessageModel(String message, String sendtBy) {

@@ -44,8 +44,9 @@ public class BtListAdapter extends RecyclerView.Adapter<BtListAdapter.viewHolder
         this.listener = listener;
     }
 
+    @NonNull
     @Override
-    public viewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(this.context).inflate(R.layout.devices_list_layout, parent, false);
         return new viewHolder(view);
     }
@@ -137,17 +138,20 @@ public class BtListAdapter extends RecyclerView.Adapter<BtListAdapter.viewHolder
 
 
             // Set click listener on the item view
-            itemView.setOnClickListener(new View.OnClickListener() {
+            view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     // Get the adapter position of the clicked item
                     int position = getAdapterPosition();
                     // Check if the position is valid
                     if (position != RecyclerView.NO_POSITION) {
+                        BtListModel btListModel = btListModels.get(position);
                         // Retrieve the Bluetooth device name at the clicked position
-                        String deviceName = btListModels.get(position).getBtName();
+                        String deviceName = btListModel.getBtName();
+                        // Retrieve the Bluetooth device address at the clicked position
+                        String deviceAddress = btListModel.getBtAddress();
                         // Invoke the onItemClick method of the listener interface
-                        listener.onItemClick(deviceName);
+                        listener.onItemClick(deviceAddress);
                     }
                 }
             });

@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+<!--
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/linearLayout"
@@ -24,21 +25,26 @@
             android:text="Connect" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
+-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvTerminal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/btnLinearLayout"
-        android:layout_below="@+id/linearLayout"
-        android:layout_margin="@dimen/dim_5" />
+        android:layout_margin="@dimen/dim_5"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"/>
 
     <LinearLayout
         android:id="@+id/btnLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/viewDivider"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true">
 
         <Button
             android:id="@+id/btnM1"

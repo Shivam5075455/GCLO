@@ -6,8 +6,11 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -35,6 +38,8 @@ import com.example.gclo.MainActivity;
 import com.example.gclo.Models.TerminalMessageModel;
 import com.example.gclo.Models.RetainedFragment;
 import com.example.gclo.R;
+import com.example.gclo.Utility.Constants;
+import com.example.gclo.Utility.GlobalVariable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,26 +54,22 @@ public class TerminalFragment extends Fragment {
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_BLUETOOTH_PERMISSION = 2;
     private static final int REQUEST_BLUETOOTH_CONNECT_PERMISSION = 3;
+
+    //    BluetoothSocket bluetoothSocket;
+//    BluetoothDevice bluetoothDevice;
+    InputStream inputStream;
+    OutputStream outputStream;
     private BluetoothAdapter bluetoothAdapter;// it provides the functionality of ON and OFF the Bluetooth
-    Set<BluetoothDevice> BTPairedDevices = null;
+    Set<BluetoothDevice> BTPairedDevices;
+
     private static final String TAG_DEBUG = "DEBUG_MA";
     boolean bisBtConnected = false;
-    UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    BluetoothSocket bluetoothSocket = null;
-    BluetoothDevice bluetoothDevice = null;
-    static public final int BT_CON_STATUS_NOT_CONNECTED = 0;
-    static public final int BT_CON_STATUS_CONNECTING = 1;
-    static public final int BT_CON_STATUS_CONNECTED = 2;
-    static public final int BT_CON_STATUS_FAILED = 3;
-    static public final int BT_CON_STATUS_CONNECTION_LOST = 4;
-    static int iBTConnectionStatus = BT_CON_STATUS_NOT_CONNECTED;
-    static final int BT_STATE_LISTENING = 1;
-    static final int BT_STATE_CONNECTING = 2;
-    static final int BT_STATE_CONNECTED = 3;
-    static final int BT_STATE_CONNECTION_FAILED = 4;
-    static final int BT_STATE_MESSAGE_RECEIVE = 5;
+    UUID MY_UUID = UUID.fromString(Constants.uuid);
+
 
     List<TerminalMessageModel> messageModelList;
+    List<TerminalMessageModel> messageModelListReceiver;
+
     RecyclerView rvTerminal;
     Spinner spinnerBTPairedDevices;
     private EditText etTerminalWriteMessage;
@@ -76,6 +77,8 @@ public class TerminalFragment extends Fragment {
     private Button btnConnect, btnM1, btnM2, btnM3, btnM4, btnM5;
     static final String TAG = "RetainedFragment";
     private RetainedFragment retainedFragment;
+    TerminalMessageAdapter terminalMessageAdapter;
+//    TerminalMessageAdapter terminalMessageAdapterReceiver;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -85,8 +88,8 @@ public class TerminalFragment extends Fragment {
         imgTerminalSend = view.findViewById(R.id.imgTerminalSend);
         etTerminalWriteMessage = view.findViewById(R.id.etTerminalWriteMessage);
         rvTerminal = view.findViewById(R.id.rvTerminal);
-        spinnerBTPairedDevices = view.findViewById(R.id.spinnerBTPairedDevices);
-        btnConnect = view.findViewById(R.id.btnConnect);
+//        spinnerBTPairedDevices = view.findViewById(R.id.spinnerBTPairedDevices);
+//        btnConnect = view.findViewById(R.id.btnConnect);
         btnM1 = view.findViewById(R.id.btnM1);
         btnM2 = view.findViewById(R.id.btnM2);
         btnM3 = view.findViewById(R.id.btnM3);
@@ -94,50 +97,22 @@ public class TerminalFragment extends Fragment {
         btnM5 = view.findViewById(R.id.btnM5);
 
         messageModelList = new ArrayList<>();
+        messageModelListReceiver = new ArrayList<>();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setStackFromEnd(true);
         rvTerminal.setLayoutManager(linearLayoutManager);
-        TerminalMessageAdapter terminalMessageAdapter = new TerminalMessageAdapter(messageModelList);
+        terminalMessageAdapter = new TerminalMessageAdapter(messageModelList);
         rvTerminal.setAdapter(terminalMessageAdapter);
 
-        checkBluetoothPermission();
-        turnOnBluetooth();
-        btnConnect.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("MissingPermission")
-            @Override
-            public void onClick(View v) {
-                if (bisBtConnected == false) {
-                    Log.d(TAG_DEBUG, "btnConnect clicked");
-                    if (spinnerBTPairedDevices.getSelectedItemPosition() == 0) {
-                        Toast.makeText(getContext(), "Please select bluetooth device", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
 
-                    String sSelectedDevice = spinnerBTPairedDevices.getSelectedItem().toString();
-                    Log.d(TAG_DEBUG, "Selected device: " + sSelectedDevice);
+//        LinearLayoutManager linearLayoutManagerReceiver = new LinearLayoutManager(getContext());
+//        linearLayoutManagerReceiver.setStackFromEnd(true);
+//        rvTerminal.setLayoutManager(linearLayoutManagerReceiver);
+//        terminalMessageAdapterReceiver = new TerminalMessageAdapter(messageModelListReceiver);
+//        rvTerminal.setAdapter(terminalMessageAdapterReceiver);
 
-                    for (BluetoothDevice btDevice : BTPairedDevices) {
-                        if (sSelectedDevice.equals(btDevice.getName())) {
-                            bluetoothDevice = btDevice;
-                            Log.d(TAG_DEBUG, "Selected device UUID: " + bluetoothDevice.getAddress());
-                            cBluetoothConnect bluetoothConnect = new cBluetoothConnect(bluetoothDevice);
-                            bluetoothConnect.start();
 
-                        }
-                    }
-                } else {
-                    try {
-                        bluetoothSocket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Log.d(TAG_DEBUG, "bluetooth disconnected exception: " + e.getMessage());
-                    }
-                    Log.d(TAG_DEBUG, "bluetooth disconnected");
-                    btnConnect.setText("Connect");
-                    bisBtConnected = false;
-                }
-            }
-        });
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 
 // To save the messages after switching the fragment
@@ -158,11 +133,13 @@ public class TerminalFragment extends Fragment {
                     messageModelList.add(new TerminalMessageModel(message, TerminalMessageModel.sent_by_admin));
                     terminalMessageAdapter.notifyDataSetChanged();
                     scrollToLast();
+                    sendMessage(message + "\n");
                     etTerminalWriteMessage.setText("");
 
                 }
             }
         });
+
 
         // Handle back button press
         view.setFocusableInTouchMode(true);
@@ -187,11 +164,8 @@ public class TerminalFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
-
-
-        getPairedDevices();
-        populateSpinnerWithPairedDevices();
+//        getPairedDevices();
+//        populateSpinnerWithPairedDevices();
     }
 
     private void handleBackPressed() {
@@ -200,9 +174,16 @@ public class TerminalFragment extends Fragment {
     }
 
     public void scrollToLast() {
-        if (messageModelList.size() > 0) {
+        if (!messageModelList.isEmpty()) {
             rvTerminal.smoothScrollToPosition(messageModelList.size() - 1);
         }
+
+    }
+
+    public void scrollToLastReceiver() {
+//        if (!messageModelListReceiver.isEmpty()) {
+//            rvTerminal.smoothScrollToPosition(messageModelListReceiver.size() - 1);
+//        }
     }
 
     private RetainedFragment getOrCreateRetainedFragment() {
@@ -217,217 +198,79 @@ public class TerminalFragment extends Fragment {
         return fragment;
     }
 
-    //    Bluetooth work
-    // Check and request Bluetooth permissions
-    private void checkBluetoothPermission() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(requireActivity(), new String[]{
-                    Manifest.permission.BLUETOOTH,
-                    Manifest.permission.BLUETOOTH_ADMIN,
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-            }, REQUEST_BLUETOOTH_PERMISSION);
-        }
-    }//checkBluetoothPermission
 
+    @SuppressLint("MissingPermission")
+    public void sendMessage(String message) {
+        try {
+            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("BluetoothPref", Context.MODE_PRIVATE);
+            String remoteDevice = sharedPreferences.getString("remoteDevice", null);
+            String strBluetoothSocket = sharedPreferences.getString("bluetoothSocket", null);
+            sharedPreferences.edit().apply();
 
-    private void turnOnBluetooth() {
-        if (bluetoothAdapter == null) {
-            Toast.makeText(requireContext(), "Your device doesn't support Bluetooth", Toast.LENGTH_SHORT).show();
-        } else if (!bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
-    }//bluetoothON
+            Log.d(TAG_DEBUG, "btCommunication remoteDevice: " + remoteDevice);
+            Log.d(TAG_DEBUG, "btCommunication strBluetoothSocket: " + strBluetoothSocket);
+            if (remoteDevice != null && strBluetoothSocket != null) {
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_ENABLE_BT) {
-            if (resultCode == Activity.RESULT_OK) {
-                Toast.makeText(requireContext(), "Bluetooth Enabled", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(requireContext(), "Bluetooth not enabled", Toast.LENGTH_SHORT).show();
+                GlobalVariable.bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
+                Log.d(TAG_DEBUG, "bluetoothDevice: " + GlobalVariable.bluetoothDevice.getName());
             }
-        }
-    }//onActivityResult
-
-    // Handle the result of the permission request
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_BLUETOOTH_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permissions granted, proceed with Bluetooth operations
-                Toast.makeText(getContext(), "Bluetooth connect permission granted", Toast.LENGTH_SHORT).show();
-            } else {
-                // Permissions denied, handle accordingly
-                Toast.makeText(getContext(), "Bluetooth connect permission deny", Toast.LENGTH_SHORT).show();
+            outputStream = GlobalVariable.bluetoothSocket.getOutputStream();
+            if (outputStream != null) {
+                outputStream.write(message.getBytes());
             }
+            inputStream = GlobalVariable.bluetoothSocket.getInputStream();
+            if (inputStream != null) {
+                receiveMessage();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG_DEBUG, "btCommunication exception: " + e.getMessage());
         }
     }
 
-    // get paired devices
-    @SuppressLint("MissingPermission")
-    void getPairedDevices() {
-        Log.d(TAG_DEBUG, "\ngetPairedDevices - started");
+    public void receiveMessage() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-            bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
-            BTPairedDevices = bluetoothAdapter.getBondedDevices();//return all paired devicdes
-            Log.d(TAG_DEBUG, "BT paired devices count: " + BTPairedDevices.size());
-            for (BluetoothDevice btDevice : BTPairedDevices) {
-                Log.d("BTDevice", btDevice.getName() + ", " + btDevice.getAddress());
-            }
-        }
+                byte[] buffer = new byte[1024];
+                int bytes;
+                StringBuilder receivedMessage = new StringBuilder();
+                while (true) {
+                    try {
+                        bytes = inputStream.read(buffer);
 
-    }//getPairedDevices
+                        // Handle incoming message
 
-    // add paired devices into spinner
-    @SuppressLint("MissingPermission")
-    void populateSpinnerWithPairedDevices() {
-        Log.d(TAG_DEBUG, "populateSpinnerWithPairedDevices started");
-        ArrayList<String> allPairedDevices = new ArrayList<>();
-        allPairedDevices.add("Select");
-        if (bluetoothAdapter.isEnabled()) {
-            for (BluetoothDevice btDevice : BTPairedDevices) {
-                allPairedDevices.add(btDevice.getName());
-            }
-        }
+                        while ((bytes = inputStream.read(buffer)) != -1) {
+                            String data = new String(buffer, 0, bytes);
+                            receivedMessage.append(data);
+                            // Check for termination character or sequence
+                            if (receivedMessage.toString().endsWith("\n")) {
+                                String completeMessage = receivedMessage.toString().trim(); // Trim to remove whitespace characters
 
-        final ArrayAdapter<String> aaPairedDevices = new ArrayAdapter<>(getContext(), androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, allPairedDevices);
-        aaPairedDevices.setDropDownViewResource(androidx.constraintlayout.widget.R.layout.support_simple_spinner_dropdown_item);
-        spinnerBTPairedDevices.setAdapter(aaPairedDevices);
+//                                String message = new String(buffer, 0, bytes);
+                                if (getActivity() != null) {
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
 
-    }//populateSpinnerWithPairedDevices
-
-    //    created class to connect bluetooth in other thread
-    public class cBluetoothConnect extends Thread {
-        private BluetoothDevice btdevice; // device
-
-        @SuppressLint("MissingPermission")
-        public cBluetoothConnect(BluetoothDevice BTDevice) {
-            Log.d(TAG_DEBUG, "cBluetoothConnect - started");
-            btdevice = BTDevice;
-            try {
-                bluetoothSocket = btdevice.createRfcommSocketToServiceRecord(MY_UUID);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.d(TAG_DEBUG, "class cBluetoothConnect exception: " + e.getMessage());
-            }
-        }//cBluetoothConnect method
-
-        @SuppressLint("MissingPermission")
-        public void run() {
-            try {
-                bluetoothSocket.connect();
-                Message message = Message.obtain();
-                message.what = BT_STATE_CONNECTED;
-                handler.sendMessage(message);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                Message message = Message.obtain();
-                message.what = BT_STATE_CONNECTION_FAILED;
-                handler.sendMessage(message);
-                Log.d(TAG_DEBUG, "cBluetoothConnect class while disconnecting bluetooth - exception: " + e.getMessage());
-            }
-        }
-
-
-    }//cBluetoothConnect class
-
-
-    Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(@NonNull Message msg) {
-            switch (msg.what) {
-                case BT_STATE_LISTENING:
-                    Log.d(TAG_DEBUG, "BT_STATE_LISTENING");
-                    break;
-                case BT_STATE_CONNECTING:
-                    iBTConnectionStatus = BT_CON_STATUS_CONNECTING;
-                    btnConnect.setText("Connecting...");
-                    Log.d(TAG_DEBUG, "BT_STATE_CONNECTING");
-                    break;
-                case BT_STATE_CONNECTED:
-                    iBTConnectionStatus = BT_CON_STATUS_CONNECTED;
-                    Log.d(TAG_DEBUG, "BT_CON_STATUS_CONNECTED");
-                    btnConnect.setText("Disconnect");
-
-                    classBTInitDataCommunication BTSendReceive = new classBTInitDataCommunication(bluetoothSocket);
-                    BTSendReceive.start();
-                    bisBtConnected = true;
-                    break;
-                case BT_STATE_CONNECTION_FAILED:
-                    iBTConnectionStatus = BT_CON_STATUS_FAILED;
-                    bisBtConnected = false;
-                    break;
-                case BT_STATE_MESSAGE_RECEIVE:
-                    byte[] readBuff = (byte[]) msg.obj;
-                    String tempMsg = new String(readBuff, 0, msg.arg1);
-                    Log.d(TAG, "Message receive (" + tempMsg.length() + " ) data : " + tempMsg);
-                    break;
-            }
-
-            return true;
-        }
-    });
-
-
-    public class classBTInitDataCommunication extends Thread {
-        private final BluetoothSocket bluetoothSocket1;
-        private final InputStream inputStream;
-        private final OutputStream outputStream;
-
-        public classBTInitDataCommunication(BluetoothSocket bSocket) {
-            Log.d(TAG_DEBUG, "classBTInitDataCommunication - started");
-            bluetoothSocket1 = bSocket;
-            InputStream tempInputStream = null;
-            OutputStream tempOutputStream = null;
-
-            try {
-                tempInputStream = bluetoothSocket1.getInputStream();
-                tempOutputStream = bluetoothSocket1.getOutputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.d(TAG_DEBUG, "classBTInitDataCommunication - started exception: " + e.getMessage());
-            }
-            inputStream = tempInputStream;
-            outputStream = tempOutputStream;
-        }//classBTInitDataCommunication constructor
-
-        public void run() {
-            byte[] buffer = new byte[1024];
-            int bytes;
-            while (bluetoothSocket.isConnected()) {
-                try {
-                    bytes = inputStream.read(buffer);
-                    handler.obtainMessage(BT_STATE_MESSAGE_RECEIVE, bytes, -1, buffer).sendToTarget();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "BT disconnect from decide end, exception " + e.getMessage());
-                    iBTConnectionStatus = BT_CON_STATUS_CONNECTION_LOST;
-                }
-
-                try {
-                    // disconnect bluetooth
-                    Log.d(TAG_DEBUG, "Disconnecting MY BTConnection");
-                    if (bluetoothSocket != null && bluetoothSocket.isConnected()) {
-                        bluetoothSocket.close();
+                                            messageModelList.add(new TerminalMessageModel(completeMessage, TerminalMessageModel.received_by_user));
+                                            terminalMessageAdapter.notifyDataSetChanged();
+                                            scrollToLastReceiver();
+                                            Log.d(TAG_DEBUG, "Received message: " + completeMessage);
+                                        }
+                                    });
+                                }
+                                receivedMessage.setLength(0); // Clear the StringBuilder for the next message
+                            }
+                        }
+                    } catch (IOException e) {
+                        getActivity().runOnUiThread(() -> Log.e(TAG_DEBUG, "Error reading from input stream", e));
                     }
-                    btnConnect.setText("Connect");
-                    bisBtConnected = false;
-                    Log.d(TAG_DEBUG, "Disconnected MY BTConnection");
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    Log.d(TAG_DEBUG, "classBTInitDataCommunication disconnect excepton" + ex.getMessage());
                 }
             }
-        }
-    }//classBTInitDataCommunication class
+        }).start();
+    }
+
 }

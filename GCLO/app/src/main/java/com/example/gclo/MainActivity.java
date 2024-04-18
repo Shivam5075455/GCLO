@@ -4,6 +4,8 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -37,6 +39,7 @@ import com.example.gclo.Fragments.NavigationFragments.PersonDetailsFragment;
 import com.example.gclo.Fragments.NavigationFragments.SettingFragment;
 import com.example.gclo.Fragments.NavigationFragments.TerminalFragment;
 import com.example.gclo.Fragments.Profile.ProfileFragment;
+import com.example.gclo.Utility.GlobalVariable;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
@@ -49,13 +52,21 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_BLUETOOTH_PERMISSION = 2;
     ActionBarDrawerToggle actionBarDrawerToggle;
     FirebaseAuth auth;
+
+
     private BluetoothAdapter bluetoothAdapter;
+    private BluetoothSocket bluetoothSocket;
+    private BluetoothDevice bluetoothDevice;
+    OutputStream outputStream;
+    InputStream inputStream;
 
     Button btnLogout;
     DevicesFragment devicesFragment = new DevicesFragment();
@@ -106,7 +117,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        closeBluetoothAdapter();
+//        closeBluetoothAdapter();
+        GlobalVariable.disconnectBluetoothDevice();
     }//onDestroy
 
     public void showExitConfirmationDialog() {
@@ -352,6 +364,7 @@ public class MainActivity extends AppCompatActivity {
         },5000);
 
     }//showInterstitialad
+
 
 
 }

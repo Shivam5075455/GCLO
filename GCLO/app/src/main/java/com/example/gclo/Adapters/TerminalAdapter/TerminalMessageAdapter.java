@@ -12,9 +12,14 @@ import java.util.List;
 
 public class TerminalMessageAdapter extends RecyclerView.Adapter<TerminalMessageAdapter.TerminalHolder> {
     List<TerminalMessageModel> messageModelList;
+    List<TerminalMessageModel> messageModelListReceiver;
 
     public TerminalMessageAdapter(List<TerminalMessageModel> messageModelList) {
         this.messageModelList = messageModelList;
+    }
+    public TerminalMessageAdapter(List<TerminalMessageModel> messageModelList, List<TerminalMessageModel> messageModelListReceiver) {
+        this.messageModelList = messageModelList;
+        this.messageModelListReceiver = messageModelListReceiver;
     }
 
     @NonNull
