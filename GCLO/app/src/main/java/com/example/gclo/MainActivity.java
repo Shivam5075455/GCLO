@@ -2,6 +2,7 @@ package com.example.gclo;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -30,7 +31,9 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.example.gclo.Activity.LoginActivity;
 import com.example.gclo.Fragments.NavigationFragments.AboutFragment;
 import com.example.gclo.Fragments.NavigationFragments.ChatFragment;
 import com.example.gclo.Fragments.NavigationFragments.DevicesFragment;
@@ -39,6 +42,7 @@ import com.example.gclo.Fragments.NavigationFragments.PersonDetailsFragment;
 import com.example.gclo.Fragments.NavigationFragments.SettingFragment;
 import com.example.gclo.Fragments.NavigationFragments.TerminalFragment;
 import com.example.gclo.Fragments.Profile.ProfileFragment;
+import com.example.gclo.Models.BluetoothViewModel;
 import com.example.gclo.Utility.GlobalVariable;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
@@ -67,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothDevice bluetoothDevice;
     OutputStream outputStream;
     InputStream inputStream;
+    private BluetoothViewModel bluetoothViewModel;
 
     Button btnLogout;
     DevicesFragment devicesFragment = new DevicesFragment();
@@ -76,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
     private InterstitialAd mInterstitialad;
     FirebaseUser firebaseUser;
     private static final int REQUEST_ENABLE_BT = 1;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
         changeToolbarTitle("Terminal");
 
+        bluetoothViewModel = new ViewModelProvider(this).get(BluetoothViewModel.class);
 
         verifyUser();
 //        checkBluetoothPermission();
@@ -158,16 +166,22 @@ public class MainActivity extends AppCompatActivity {
         } else if (user != null && user.isEmailVerified()) {
             navigation();
             replaceFragments(new TerminalFragment());
+
         }
     }
 
-    private void checkBluetoothPermission() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH)
-                != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT)
-                        != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.BLUETOOTH,
-                    android.Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_BLUETOOTH_PERMISSION);
+    public void checkBluetoothPermission() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    android.Manifest.permission.BLUETOOTH,
+                    android.Manifest.permission.BLUETOOTH_ADMIN,
+                    android.Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_SCAN
+            }, REQUEST_BLUETOOTH_PERMISSION);
         }
     }
 // if permission is requested then get a response and handle it

@@ -18,7 +18,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.gclo.MainActivity;
 import com.example.gclo.R;
-import com.example.gclo.SignupActivity;
+import com.example.gclo.Activity.SignupActivity;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;

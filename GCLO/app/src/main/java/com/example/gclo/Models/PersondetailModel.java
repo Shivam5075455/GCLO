@@ -14,9 +14,6 @@ public class PersondetailModel {
         this.zoneOut = zoneOut;
     }
 
-
-
-
     public PersondetailModel() {
 
     }

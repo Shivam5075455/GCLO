@@ -35,4 +35,6 @@ public class BtListModel {
     public void setBluetoothDevice(BluetoothDevice bluetoothDevice) {
         this.bluetoothDevice = bluetoothDevice;
     }
+
+
 }

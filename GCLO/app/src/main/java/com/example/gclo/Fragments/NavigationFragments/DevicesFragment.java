@@ -25,13 +25,15 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gclo.Adapters.BluetoothAdapter.BtListAdapter;
 import com.example.gclo.MainActivity;
+import com.example.gclo.Models.BluetoothViewModel;
 import com.example.gclo.Models.BtListModel;
+import com.example.gclo.Models.RetainedFragment;
 import com.example.gclo.R;
 import com.example.gclo.Utility.Constants;
 import com.example.gclo.Utility.GlobalVariable;
@@ -52,12 +54,14 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
     boolean isPermissionGranted = true;
     UUID MY_UUID = UUID.fromString(Constants.uuid);
 
-    private BluetoothAdapter bluetoothAdapter;
-//    BluetoothSocket bluetoothSocket;
+//    BluetoothAdapter bluetoothAdapter;
+//        BluetoothSocket bluetoothSocket;
 //    BluetoothDevice bluetoothDevice;
-    OutputStream outputStream;
-    InputStream inputStream;
+//    OutputStream outputStream;
+//    InputStream inputStream;
     List<BtListModel> btListModels;
+    private BluetoothViewModel bluetoothViewModel;
+    BtListAdapter btListAdapter;
 
     String deviceName;
     String deviceAddress;
@@ -65,6 +69,7 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
     TextView tvScan;
     Button btnConnect;
     private static final String TAG = "DEBUG_MA";
+    RetainedFragment retainedFragment = new RetainedFragment();
 
     @SuppressLint("MissingPermission")
     @Override
@@ -75,23 +80,25 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
         recyclerView = view.findViewById(R.id.recyclerView);
         btnConnect = view.findViewById(R.id.btnConnect);
         btListModels = new ArrayList<>();
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        GlobalVariable.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         tvScan.setOnClickListener(view2 -> {
             bluetoothON();
             scan();
         });
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            checkBluetoothPermission();
+        }
         // Set up onBackPressed callback
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 ((MainActivity) requireActivity()).changeToolbarTitle("Terminal");
-                loadFragment(new TerminalFragment());
+                ((MainActivity) requireActivity()).replaceFragments(new TerminalFragment());
             }
         });
 
-        BtListAdapter btListAdapter = new BtListAdapter(getContext(), btListModels, this);
+        btListAdapter = new BtListAdapter(getContext(), btListModels, this);
         recyclerView.setAdapter(btListAdapter);
 
         btnConnect.setOnClickListener(new View.OnClickListener() {
@@ -103,16 +110,14 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
         return view;
     }//onCreateView
 
-    public void loadFragment(Fragment fragment) {
+    /*public void loadFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.frameLayoutContainer, fragment);
         fragmentTransaction.commit();
-    }
+    }*/
 
     public void scan() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            checkBluetoothPermission();
-        }
+
         listDevices();
     }
 
@@ -134,11 +139,11 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
     }
 
     private void bluetoothON() {
-        if (bluetoothAdapter == null) {
+        if (GlobalVariable.bluetoothAdapter == null) {
             if (isPermissionGranted) {
                 Toast.makeText(requireContext(), "Your device doesn't support Bluetooth", Toast.LENGTH_SHORT).show();
             }
-        } else if (!bluetoothAdapter.isEnabled()) {
+        } else if (!GlobalVariable.bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             isPermissionGranted = false;
@@ -175,11 +180,11 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
     @SuppressLint("MissingPermission")
     private void listDevices() {
 
-        if (bluetoothAdapter == null) {
+        if (GlobalVariable.bluetoothAdapter == null) {
             Log.e(TAG, "Bluetooth is not supported on this device");
             return;
         }
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        Set<BluetoothDevice> pairedDevices = GlobalVariable.bluetoothAdapter.getBondedDevices();
         btListModels.clear();
         if (!pairedDevices.isEmpty()) {
             for (BluetoothDevice device : pairedDevices) {
@@ -188,7 +193,7 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
                 BtListModel btListModel = new BtListModel(deviceName, deviceAddress);
                 btListModels.add(btListModel);
             }
-            BtListAdapter btListAdapter = new BtListAdapter(requireContext(), btListModels, this);
+            btListAdapter = new BtListAdapter(requireContext(), btListModels, this);
             recyclerView.setAdapter(btListAdapter);
             LinearLayoutManager linearLayout = new LinearLayoutManager(requireContext());
             recyclerView.setLayoutManager(linearLayout);
@@ -211,9 +216,11 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
         // Start Bluetooth discovery (optional, you can skip this if the device is already paired)
 //        bluetoothAdapter.startDiscovery();
 //        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        GlobalVariable.bluetoothDevice = bluetoothAdapter.getRemoteDevice(deviceAddress);
-
-        Log.d("bluetooth","Bluetooth device: "+GlobalVariable.bluetoothDevice);
+//        bluetoothViewModel.setBluetoothDevice(bluetoothAdapter.getRemoteDevice(deviceAddress));
+//        bluetoothDevice = bluetoothViewModel.getBluetoothDevice();
+        GlobalVariable.bluetoothDevice = GlobalVariable.bluetoothAdapter.getRemoteDevice(deviceAddress);
+        Log.d("bluetooth", "Bluetooth device: " +
+                GlobalVariable.bluetoothDevice);
         connectToDevice(deviceAddress);
     }
 
@@ -227,24 +234,36 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
                 try {
                     // Create a Bluetooth socket
                     GlobalVariable.bluetoothSocket = GlobalVariable.bluetoothDevice.createRfcommSocketToServiceRecord(MY_UUID);
+//                    bluetoothViewModel.setBluetoothSocket(bluetoothDevice.createRfcommSocketToServiceRecord(MY_UUID));
+//                    bluetoothSocket = bluetoothViewModel.getBluetoothSocket();
+                    Log.d(TAG, "Bluetooth socket: " + GlobalVariable.bluetoothSocket);
+//                    bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(MY_UUID);
 //                    bluetoothAdapter.cancelDiscovery();
                     // Connect to the remote device through the socket. This is a blocking call.
+//                    GlobalVariable.bluetoothSocket.connect();
                     GlobalVariable.bluetoothSocket.connect();
+
+                    // After successfully connecting to the Bluetooth device keep the BluetoothSocket object into retainedfragment
+
+//                    retainedFragment.setBluetoothSocket(bluetoothSocket);
+//                    bluetoothViewModel.setBluetoothSocket(bluetoothSocket);
+
                     // If the connection is successful, you can get the OutputStream to send data
 //                    outputStream = bluetoothSocket.getOutputStream();
                     // Notify the user that the connection was successful
 //                    store connected bluetooth device and bluetoothSocket
-                    SharedPreferences sharedPreferences = requireContext().getSharedPreferences("BluetoothPref", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("remoteDevice",GlobalVariable.bluetoothDevice.toString());
-                    editor.putString("bluetoothSocket",GlobalVariable.bluetoothSocket.toString());
-                    editor.apply();
+//                    SharedPreferences sharedPreferences = requireContext().getSharedPreferences("BluetoothPref", Context.MODE_PRIVATE);
+//                    SharedPreferences.Editor editor = sharedPreferences.edit();
+//                    editor.putString("remoteDevice", bluetoothDevice.toString());
+//                    editor.putString("bluetoothSocket", bluetoothSocket.toString());
+//                    editor.apply();
 
                     requireActivity().runOnUiThread(() -> {
                         Toast.makeText(getContext(), "Connected to: " + GlobalVariable.bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
                         btnConnect.setText("Disconnect");
                         bisBtConnected = true;
-                        loadFragment(new TerminalFragment());
+                        ((MainActivity) requireActivity()).changeToolbarTitle("Terminal");
+                        ((MainActivity) requireActivity()).replaceFragments(new TerminalFragment());
                     });
 
                 } catch (Exception e) {
@@ -252,11 +271,12 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
 
                     getActivity().runOnUiThread(() -> {
                         Toast.makeText(getContext(), "Connection failed", Toast.LENGTH_SHORT).show();
-                        btnConnect.setText("Connect");
-                        bisBtConnected = false;
+//                        btnConnect.setText("Connect");
+//                        bisBtConnected = false;
                     });
 
                     try {
+//                        GlobalVariable.bluetoothSocket.close();
                         GlobalVariable.bluetoothSocket.close();
                     } catch (IOException closeException) {
                         Log.e(TAG, "Could not close the client socket", closeException);

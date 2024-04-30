@@ -30,11 +30,13 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gclo.Adapters.TerminalAdapter.TerminalMessageAdapter;
 import com.example.gclo.MainActivity;
+import com.example.gclo.Models.BluetoothViewModel;
 import com.example.gclo.Models.TerminalMessageModel;
 import com.example.gclo.Models.RetainedFragment;
 import com.example.gclo.R;
@@ -46,6 +48,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -57,10 +60,11 @@ public class TerminalFragment extends Fragment {
 
     //    BluetoothSocket bluetoothSocket;
 //    BluetoothDevice bluetoothDevice;
-    InputStream inputStream;
-    OutputStream outputStream;
-    private BluetoothAdapter bluetoothAdapter;// it provides the functionality of ON and OFF the Bluetooth
+//    InputStream inputStream;
+//    OutputStream outputStream;
+//    BluetoothAdapter bluetoothAdapter;// it provides the functionality of ON and OFF the Bluetooth
     Set<BluetoothDevice> BTPairedDevices;
+//    private BluetoothViewModel bluetoothViewModel;
 
     private static final String TAG_DEBUG = "DEBUG_MA";
     boolean bisBtConnected = false;
@@ -76,7 +80,7 @@ public class TerminalFragment extends Fragment {
     private ImageView imgTerminalSend;
     private Button btnConnect, btnM1, btnM2, btnM3, btnM4, btnM5;
     static final String TAG = "RetainedFragment";
-    private RetainedFragment retainedFragment;
+    private RetainedFragment retainedFragment, retainedFragmentBluetoothSocket;
     TerminalMessageAdapter terminalMessageAdapter;
 //    TerminalMessageAdapter terminalMessageAdapterReceiver;
 
@@ -112,17 +116,35 @@ public class TerminalFragment extends Fragment {
 //        rvTerminal.setAdapter(terminalMessageAdapterReceiver);
 
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        GlobalVariable.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
+//        get the BluetoothSocket from RetainedFragment
+        retainedFragment = getOrCreateRetainedFragment();
+//        bluetoothSocket = retainedFragment.getBluetoothSocket();
+//        bluetoothViewModel = new ViewModelProvider(this).get(BluetoothViewModel.class);
 
 // To save the messages after switching the fragment
-        retainedFragment = getOrCreateRetainedFragment();
+//        retainedFragment = getOrCreateRetainedFragment();
         List<TerminalMessageModel> retainedMessages = retainedFragment.getMessages();
         if (retainedMessages != null && !retainedMessages.isEmpty()) {
             messageModelList.addAll(retainedMessages);
             terminalMessageAdapter.notifyDataSetChanged();
             scrollToLast();
         }
+
+
+        try {
+            if (GlobalVariable.bluetoothDevice != null && GlobalVariable.bluetoothSocket != null && GlobalVariable.bluetoothSocket.isConnected()) {
+                GlobalVariable.inputStream = GlobalVariable.bluetoothSocket.getInputStream();
+                if (GlobalVariable.inputStream != null) {
+                    receiveMessage();
+                }
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
 
         imgTerminalSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,9 +155,10 @@ public class TerminalFragment extends Fragment {
                     messageModelList.add(new TerminalMessageModel(message, TerminalMessageModel.sent_by_admin));
                     terminalMessageAdapter.notifyDataSetChanged();
                     scrollToLast();
+//                    if (outputStream != null) {
                     sendMessage(message + "\n");
+//                    }
                     etTerminalWriteMessage.setText("");
-
                 }
             }
         });
@@ -166,6 +189,9 @@ public class TerminalFragment extends Fragment {
         super.onStart();
 //        getPairedDevices();
 //        populateSpinnerWithPairedDevices();
+        if (GlobalVariable.bluetoothAdapter == null || !GlobalVariable.bluetoothAdapter.isEnabled()) {
+            Log.d(TAG_DEBUG, "Bluetooth is not enabled.");
+        }
     }
 
     private void handleBackPressed() {
@@ -188,6 +214,7 @@ public class TerminalFragment extends Fragment {
 
     private RetainedFragment getOrCreateRetainedFragment() {
 
+        assert getFragmentManager() != null;
         RetainedFragment fragment = (RetainedFragment) getFragmentManager().findFragmentByTag(RetainedFragment.TAG);
 
         if (fragment == null) {
@@ -201,34 +228,49 @@ public class TerminalFragment extends Fragment {
 
     @SuppressLint("MissingPermission")
     public void sendMessage(String message) {
+        Log.d(TAG_DEBUG, "sendMessage() started");
         try {
-            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("BluetoothPref", Context.MODE_PRIVATE);
-            String remoteDevice = sharedPreferences.getString("remoteDevice", null);
-            String strBluetoothSocket = sharedPreferences.getString("bluetoothSocket", null);
-            sharedPreferences.edit().apply();
+//            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("BluetoothPref", Context.MODE_PRIVATE);
+//            String remoteDevice = sharedPreferences.getString("remoteDevice", null);
+//            String strBluetoothSocket = sharedPreferences.getString("bluetoothSocket", null);
+//            sharedPreferences.edit().apply();
+//            bluetoothDevice = bluetoothViewModel.getBluetoothDevice();
+//            bluetoothSocket = bluetoothViewModel.getBluetoothSocket();
 
-            Log.d(TAG_DEBUG, "btCommunication remoteDevice: " + remoteDevice);
-            Log.d(TAG_DEBUG, "btCommunication strBluetoothSocket: " + strBluetoothSocket);
-            if (remoteDevice != null && strBluetoothSocket != null) {
+            Log.d(TAG_DEBUG, "btCommunication remoteDevice: " + GlobalVariable.bluetoothDevice);
+            Log.d(TAG_DEBUG, "btCommunication bluetoothSocket: " + GlobalVariable.bluetoothSocket);
+            if (GlobalVariable.bluetoothDevice != null && GlobalVariable.bluetoothSocket != null) {
+//                GlobalVariable.bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
+//                bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
 
-                GlobalVariable.bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
+//                bluetoothSocket = bluetoothAdapter.getRemoteDevice(strBluetoothSocket).createRfcommSocketToServiceRecord(MY_UUID);
                 Log.d(TAG_DEBUG, "bluetoothDevice: " + GlobalVariable.bluetoothDevice.getName());
-            }
-            outputStream = GlobalVariable.bluetoothSocket.getOutputStream();
-            if (outputStream != null) {
-                outputStream.write(message.getBytes());
-            }
-            inputStream = GlobalVariable.bluetoothSocket.getInputStream();
-            if (inputStream != null) {
-                receiveMessage();
+
+//                if (GlobalVariable.bluetoothSocket != null && GlobalVariable.bluetoothSocket.isConnected()) {
+                if (GlobalVariable.bluetoothSocket != null && GlobalVariable.bluetoothSocket.isConnected()) {
+                    Log.d(TAG_DEBUG, "Bluetooth socket is connected.");
+//                outputStream = GlobalVariable.bluetoothSocket.getOutputStream();
+                    GlobalVariable.outputStream = GlobalVariable.bluetoothSocket.getOutputStream();
+                    if (GlobalVariable.outputStream != null) {
+                        GlobalVariable.outputStream.write(message.getBytes());
+                        GlobalVariable.outputStream.flush(); // Flush the stream to ensure data is sent immediately
+                        Log.d(TAG_DEBUG, "Bluetooth message sent");
+                    } else {
+                        Log.d(TAG_DEBUG, "Output stream is null.");
+                    }
+                } else {
+                    Log.d(TAG_DEBUG, "Bluetooth socket is not connected.");
+
+                }
+
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            Log.d(TAG_DEBUG, "btCommunication exception: " + e.getMessage());
+            throw new RuntimeException(e);
         }
-    }
+    }//end of sendMessage
 
     public void receiveMessage() {
+        Log.d(TAG_DEBUG, "receiveMessage() started");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -238,11 +280,10 @@ public class TerminalFragment extends Fragment {
                 StringBuilder receivedMessage = new StringBuilder();
                 while (true) {
                     try {
-                        bytes = inputStream.read(buffer);
+                        bytes = GlobalVariable.inputStream.read(buffer);
 
                         // Handle incoming message
-
-                        while ((bytes = inputStream.read(buffer)) != -1) {
+                        while ((bytes = GlobalVariable.inputStream.read(buffer)) != -1) {
                             String data = new String(buffer, 0, bytes);
                             receivedMessage.append(data);
                             // Check for termination character or sequence
@@ -254,7 +295,7 @@ public class TerminalFragment extends Fragment {
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-
+//                                            retainedFragment.addMessage(new TerminalMessageModel(completeMessage, TerminalMessageModel.received_by_user));
                                             messageModelList.add(new TerminalMessageModel(completeMessage, TerminalMessageModel.received_by_user));
                                             terminalMessageAdapter.notifyDataSetChanged();
                                             scrollToLastReceiver();
@@ -266,11 +307,11 @@ public class TerminalFragment extends Fragment {
                             }
                         }
                     } catch (IOException e) {
-                        getActivity().runOnUiThread(() -> Log.e(TAG_DEBUG, "Error reading from input stream", e));
+                        requireActivity().runOnUiThread(() -> Log.e(TAG_DEBUG, "Error reading from input stream", e));
                     }
                 }
             }
         }).start();
-    }
+    }//end of receiveMessage
 
 }

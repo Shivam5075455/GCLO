@@ -5,6 +5,12 @@
 
     <string name="app_name">GCLO</string>
 
+<!--    Google Map API Key-->
+<!--    new generated-->
+    <string name="google_map_api_key" translatable="false">AIzaSyBKx5bB3_U6-dVRtFSoQwRc_GiDC3V5TDs</string>
+<!--    <string name="google_map_api_key" translatable="false">AIzaSyDB6FBT3tC3V7OSweL03JVozVQYYrZCyCU</string>-->
+    <string name="map_api_key">AIzaSyDjAljWSzMxckAweW5JH25HxjZ-CnH58wo</string>
+
     <string name="confirm_password">Confirm Password</string>
 
     <string name="dont_have_an_account">Don\'t have an account?</string>
@@ -73,5 +79,7 @@
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="interstitial_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>
     <string name="disconnect">Disconnect</string>
+    <string name="bot_message">Bot Message</string>
+    <string name="user_message">User Message</string>
 
 </resources>

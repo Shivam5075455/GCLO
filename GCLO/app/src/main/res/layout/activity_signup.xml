@@ -9,7 +9,7 @@
     android:layout_alignParentTop="true"
     android:background="@color/app_theme"
     android:orientation="vertical"
-    tools:context=".SignupActivity">
+    tools:context=".Activity.SignupActivity">
 
 
     <TextView

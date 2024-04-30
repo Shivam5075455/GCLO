@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.gclo.MainActivity;
 import com.example.gclo.R;
+import com.example.gclo.Utility.GlobalVariable;
 
 public class SettingFragment extends Fragment {
 
@@ -31,16 +32,16 @@ public class SettingFragment extends Fragment {
 //                    super.handleOnBackPressed();
 //                }
                 ((MainActivity) requireActivity()).changeToolbarTitle("Terminal");
-                loadFragment(new TerminalFragment());
+                ((MainActivity) requireActivity()).replaceFragments(new TerminalFragment());
             }
         });
 
         return view;
     }
 
-    public void loadFragment(Fragment fragment) {
+/*    public void loadFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.frameLayoutContainer, fragment);
         fragmentTransaction.commit();
-    }
+    }*/
 }

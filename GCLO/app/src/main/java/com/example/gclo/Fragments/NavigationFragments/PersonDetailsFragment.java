@@ -30,6 +30,7 @@ import com.example.gclo.Database.PersonDatabaseHelper;
 import com.example.gclo.MainActivity;
 import com.example.gclo.Models.PersondetailModel;
 import com.example.gclo.R;
+import com.example.gclo.Utility.GlobalVariable;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
@@ -94,7 +95,7 @@ public class PersonDetailsFragment extends Fragment {
 //                     super.handleOnBackPressed();
 //                 }
                 ((MainActivity) requireActivity()).changeToolbarTitle("Terminal");
-                loadFragment(new TerminalFragment());
+                ((MainActivity) requireActivity()).replaceFragments(new TerminalFragment());
 
             }
         });
@@ -266,11 +267,11 @@ public class PersonDetailsFragment extends Fragment {
     }
 
 
-    public void loadFragment(Fragment fragment) {
+/*    public void loadFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.frameLayoutContainer, fragment);
         fragmentTransaction.commit();
-    }
+    }*/
 
 
 

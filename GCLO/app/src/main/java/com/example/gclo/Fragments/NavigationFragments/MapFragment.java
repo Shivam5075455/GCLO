@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 
@@ -15,38 +16,52 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.gclo.MainActivity;
 import com.example.gclo.R;
+import com.example.gclo.Utility.GlobalVariable;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 /* loaded from: classes6.dex */
 public class MapFragment extends Fragment {
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private String mParam1;
-    private String mParam2;
 
-    public static MapFragment newInstance(String param1, String param2) {
-        MapFragment fragment = new MapFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override // androidx.fragment.app.Fragment
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            this.mParam1 = getArguments().getString(ARG_PARAM1);
-            this.mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    private GoogleMap map;
 
     @Override // androidx.fragment.app.Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 
-        View view =  inflater.inflate(R.layout.fragment_map, container, false);
+        View view = inflater.inflate(R.layout.fragment_map, container, false);
 
+        SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        assert supportMapFragment != null;
+        supportMapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull GoogleMap googleMap) {
+                map=googleMap;
+                LatLng latLng = new LatLng(37.7749, -122.4194);
+//              Add marker
+                MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("Francisco");
+                map.addMarker(markerOptions.position(latLng));
+                map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+
+//                draw circle
+                map.addCircle(new CircleOptions().center(latLng).radius(200).strokeColor(R.color.app_theme).fillColor(R.color.black));
+                map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+                
+//                Ground overlay -> show image
+//                map.addGroundOverlay(new GroundOverlayOptions()
+//                        .position(latLng,1000f,1000f)
+//                        .image(BitmapDescriptorFactory.fromResource(R.drawable.man)));
+            }
+        });
         // Set up onBackPressed callback
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override
@@ -60,7 +75,7 @@ public class MapFragment extends Fragment {
 //                     super.handleOnBackPressed();
 //                 }
                 ((MainActivity) requireActivity()).changeToolbarTitle("Terminal");
-                loadFragment(new TerminalFragment());
+                ((MainActivity) requireActivity()).replaceFragments(new TerminalFragment());
 
             }
         });
@@ -68,9 +83,9 @@ public class MapFragment extends Fragment {
         return view;
     }
 
-    public void loadFragment(Fragment fragment) {
+   /* public void loadFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.frameLayoutContainer, fragment);
         fragmentTransaction.commit();
-    }
+    }*/
 }

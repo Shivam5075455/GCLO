@@ -1,28 +1,18 @@
 package com.example.gclo.Adapters.BluetoothAdapter;
 
-import static android.bluetooth.BluetoothAdapter.getDefaultAdapter;
 
-import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
+import static com.google.android.material.color.MaterialColors.getColor;
+
 import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.gclo.Models.BtListModel;
 import com.example.gclo.R;
-
-import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 
@@ -33,9 +23,10 @@ public class BtListAdapter extends RecyclerView.Adapter<BtListAdapter.viewHolder
     Context context;
 //    private AdapterView.OnItemClickListener listener;
     public OnItemClickListener listener;
+    private int selectedItem = -1; // Track the selected item position
 
     public interface OnItemClickListener {
-        void onItemClick(String deviceName);
+        void onItemClick(String deviceAddress);
     }
 
     public BtListAdapter(Context context, List<BtListModel> btListModels, OnItemClickListener listener) {
@@ -56,54 +47,14 @@ public class BtListAdapter extends RecyclerView.Adapter<BtListAdapter.viewHolder
         BtListModel btListModel = this.btListModels.get(position);
         holder.tvBtDeviceName.setText(btListModel.getBtName());
         holder.tvBtDeviceAddress.setText(btListModel.getBtAddress());
-
-//        BluetoothDevice bluetoothDevice = // Get your BluetoothDevice instance
-//                BtListModel btListModel = new BtListModel("DeviceName", "DeviceAddress", bluetoothDevice);
-//        btListModels.add(btListModel);
-/*
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("MissingPermission")
-            @Override
-            public void onClick(View v) {
-                @SuppressLint("MissingPermission") Set<BluetoothDevice> bluetoothDevices = getDefaultAdapter().getBondedDevices();
-                for(BluetoothDevice device: bluetoothDevices){
-//                BluetoothDevice selectedDevice = btListModels.get();
-
-                    String selectedDevice = device.getName();
-//                    Log.d("selectedDevice","Selected device: "+selectedDevice);
-                }
-                // Get the position of the clicked item
-                int selectedDevicePosition = holder.getAdapterPosition();
-                if (selectedDevicePosition != RecyclerView.NO_POSITION) {
-                    // Get the Bluetooth device at the selected position
-                    BtListModel selectedDevice = btListModels.get(selectedDevicePosition);
-                    String deviceName = selectedDevice.getBtName();
-                    String deviceAddress = selectedDevice.getBtAddress();
-                    // Do whatever you need with the selected device and its position
-                    Toast.makeText(v.getContext(), "Selected device position: "+selectedDevicePosition, Toast.LENGTH_SHORT).show();
-                    Log.d("selectedDevice", "Selected device: " + deviceName+" "+deviceAddress);
-                    Log.d("selectedDevicePosition", "Selected device position: " + selectedDevicePosition);
-
-                } else {
-                    Log.e("selectedDevice", "Invalid position");
-                }
-
-//                connectToDevice(selectedDevice);
-                // Get the selected Bluetooth device based on the position
-//                BluetoothDevice selectedDevice = btListModels.get(position).getBluetoothDevice();
-//
-//                if (selectedDevice != null) {
-//                    // Now you have the selected BluetoothDevice, you can connect to it
-//                    connectToDevice(selectedDevice);
-//                } else {
-//                    // Handle the case where the BluetoothDevice is null
-//                    Toast.makeText(context, "Selected device is null", Toast.LENGTH_SHORT).show();
-//                }
-            }
-        });
-
-        */
+        // Set text color based on the selected item
+        if (selectedItem == position) {
+            holder.tvBtDeviceName.setTextColor(context.getResources().getColor(R.color.green));
+            holder.tvBtDeviceAddress.setTextColor(context.getResources().getColor(R.color.green));
+        } else {
+            holder.tvBtDeviceName.setTextColor(context.getResources().getColor(R.color.black));
+            holder.tvBtDeviceAddress.setTextColor(context.getResources().getColor(R.color.black));
+        }
     }
 
     @Override
@@ -111,20 +62,10 @@ public class BtListAdapter extends RecyclerView.Adapter<BtListAdapter.viewHolder
         return this.btListModels.size();
     }
 
-    @SuppressLint("MissingPermission")
-    private void connectToDevice(BluetoothDevice device) {
-        BluetoothSocket socket;
-        try {
-            socket = device.createRfcommSocketToServiceRecord(MY_UUID);
-            socket.connect();
-            // At this point, the connection is established. You can perform further actions if needed.
-            Toast.makeText(context, "Connected to " + device.getName(), Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(context, "Connection failed", Toast.LENGTH_SHORT).show();
-        }
+    public void setSelectedItem(int position) {
+        this.selectedItem = position;
+        notifyDataSetChanged(); // Notify the adapter that the data set has changed
     }
-
     public class viewHolder extends RecyclerView.ViewHolder {
         TextView tvBtDeviceAddress;
         TextView tvBtDeviceName;
@@ -152,21 +93,13 @@ public class BtListAdapter extends RecyclerView.Adapter<BtListAdapter.viewHolder
                         String deviceAddress = btListModel.getBtAddress();
                         // Invoke the onItemClick method of the listener interface
                         listener.onItemClick(deviceAddress);
+                        setSelectedItem(position);
+
                     }
                 }
             });
 
-
         }
-        /*
-        public void bind(final BtListModel item, final  OnItemClickListener listener) {
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.onItemClick(item.getBtName());
-                }
-            });
-        }//bind
-*/
     }
+
 }//BtListAdapter

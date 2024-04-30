@@ -2,14 +2,16 @@
 <resources>
 
     <color name="app_theme">#009dff</color>
+    <color name="very_light_green">#C8E6C9</color>
+    <color name="light_yellow">#F0F4C3</color>
     <color name="app_theme_light">#f6fbff</color>
 
     <color name="black">#ff000000</color>
 
     <color name="edit_text_background">#f6fbff</color>
     <color name="edit_text_border">#03a9f4</color>
-
-    <color name="green">#8CE682</color>
+<!--  green  8CE682-->
+    <color name="green">#30BD21</color>
     <color name="light_sky_blue">#5DBFEA</color>
     <color name="grey">#88dfdfdf</color>
     <color name="grey_dark">#4adfdfdf</color>
