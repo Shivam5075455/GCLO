@@ -81,5 +81,8 @@
     <string name="disconnect">Disconnect</string>
     <string name="bot_message">Bot Message</string>
     <string name="user_message">User Message</string>
+    <string name="time">time</string>
+    <string name="sender">sender</string>
+    <string name="receiver">Receiver</string>
 
 </resources>

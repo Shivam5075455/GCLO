@@ -11,12 +11,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <com.google.android.material.card.MaterialCardView
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="@dimen/dim_10"
             app:cardCornerRadius="10dp"
             app:cardElevation="@dimen/dim_5"
+
+
             app:strokeColor="@android:color/transparent">
 
 
@@ -180,7 +182,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/tvPDPersonIn"
+                        android:id="@+id/tvPDPersonZone"
                         android:layout_width="30dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/dim_5"
@@ -237,7 +239,7 @@
 
 
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
 </LinearLayout>
 

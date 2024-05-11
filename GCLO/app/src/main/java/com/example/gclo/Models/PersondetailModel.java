@@ -14,6 +14,15 @@ public class PersondetailModel {
         this.zoneOut = zoneOut;
     }
 
+//    public PersondetailModel(String name, String id, String latitude, String longitude, String distance, String zoneIn) {
+//        this.name = name;
+//        this.id = id;
+//        this.latitude = latitude;
+//        this.longitude = longitude;
+//        this.distance = distance;
+//        this.zoneIn = zoneIn;
+//    }
+
     public PersondetailModel() {
 
     }

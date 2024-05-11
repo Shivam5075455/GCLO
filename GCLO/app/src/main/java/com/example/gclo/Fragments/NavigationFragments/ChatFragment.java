@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ChatFragment extends Fragment {
@@ -92,7 +93,7 @@ public class ChatFragment extends Fragment {
                 GlobalVariable.inputStream = GlobalVariable.bluetoothSocket.getInputStream();
                 receiveMessage();
             } catch (IOException e) {
-                    Log.d(TAG, "Error: " + e.getMessage());
+                Log.d(TAG, "Error: " + e.getMessage());
             }
         }
 
@@ -100,9 +101,9 @@ public class ChatFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String message = etWriteMessage.getText().toString();
-                if (message != null) {
-                    chatRetainedFragment.addMessage(new ChatMessageModel(message, ChatMessageModel.sent_by_admin));
-                    messageModelList.add(new ChatMessageModel(message, ChatMessageModel.sent_by_admin));
+                if (!message.isEmpty()) {
+                    chatRetainedFragment.addMessage(new ChatMessageModel(message, ChatMessageModel.sent_by_admin, new Date().getTime()));
+                    messageModelList.add(new ChatMessageModel(message, ChatMessageModel.sent_by_admin, new Date().getTime()));
                     chatMessageAdapter.notifyDataSetChanged();
                     scrollToLast();
                     sendMessage("chat" + message + "\n");
@@ -165,20 +166,23 @@ public class ChatFragment extends Fragment {
                                 String message = new String(buffer, 0, bytes);
                                 receivedMessage.append(message);
                                 Log.d(TAG, "Received message: " + message);
-                            // Check for termination character or sequence
+                                // Check for termination character or sequence
                                 if (receivedMessage.toString().endsWith("\n")) {
                                     String completeMessage = receivedMessage.toString();
                                     if (getActivity() != null) {
                                         getActivity().runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                if (completeMessage.contains("chat")) {
-                                                    String mymessage = completeMessage.substring(4);
-                                                    messageModelList.add(new ChatMessageModel(mymessage, ChatMessageModel.sent_by_user));
-                                                    chatMessageAdapter.notifyDataSetChanged();
-                                                    scrollToLast();
-                                                    Log.d(TAG, "Received message: " + completeMessage);
+                                                if (!completeMessage.isEmpty()) {
+                                                    if (completeMessage.contains("chat")) {
+                                                        String mymessage = completeMessage.substring(4);
+                                                        chatRetainedFragment.addMessage(new ChatMessageModel(mymessage, ChatMessageModel.sent_by_user, new Date().getTime()));
+                                                        messageModelList.add(new ChatMessageModel(mymessage, ChatMessageModel.sent_by_user, new Date().getTime()));
+                                                    }
                                                 }
+                                                        chatMessageAdapter.notifyDataSetChanged();
+                                                        scrollToLast();
+                                                        Log.d(TAG, "Received message: " + completeMessage);
                                             }
                                         });
                                     }

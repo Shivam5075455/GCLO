@@ -2,6 +2,8 @@ package com.example.gclo.Fragments.NavigationFragments;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -31,6 +33,7 @@ import com.example.gclo.MainActivity;
 import com.example.gclo.Models.PersondetailModel;
 import com.example.gclo.R;
 import com.example.gclo.Utility.GlobalVariable;
+import com.example.gclo.databinding.PersonDetailLayoutBinding;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
@@ -55,6 +58,8 @@ import java.util.UUID;
 
 public class PersonDetailsFragment extends Fragment {
 
+    final static String TAG = "PersonDetailsFragment";
+
     FirebaseAuth auth;
     FirebaseDatabase firebaseDatabase;
     SearchView searchView;
@@ -65,10 +70,14 @@ public class PersonDetailsFragment extends Fragment {
     String localId;
     SwipeRefreshLayout swiperefreshlayoutPersonDetails;
 
+    PersonDetailLayoutBinding binding;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_person_details, container, false);
+        View view1 = inflater.inflate(R.layout.person_detail_layout, container, false);
+        binding = PersonDetailLayoutBinding.bind(view1);
         auth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
 
@@ -114,6 +123,7 @@ public class PersonDetailsFragment extends Fragment {
             }
         });
 
+//        getLocaitonData();
         return view;
     }//onCreateView
 
@@ -130,7 +140,7 @@ public class PersonDetailsFragment extends Fragment {
                 }, 100);
             }
         });
-    }
+    }// end of refresh
 
     private void filterList(String newText) {
         List<PersondetailModel> filterPersonDetail = new ArrayList<>();
@@ -149,7 +159,7 @@ public class PersonDetailsFragment extends Fragment {
         //        set layout manager on the recycler view
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         rvPersonDetails.setLayoutManager(linearLayoutManager);
-    }
+    }// end of filterList
 
 
     @Override
@@ -183,7 +193,6 @@ public class PersonDetailsFragment extends Fragment {
                 if (snapshot.exists()) {
                     for (DataSnapshot userDataSnapshot : snapshot.getChildren()) {
 //                              id,name,username,email, gender,lat,long,in,out,dis
-
                         try {
                             String id = generatePersonId(); // Add a method to generate a unique ID
                             String name = Objects.requireNonNull(userDataSnapshot.child("name").getValue()).toString();
@@ -266,7 +275,32 @@ public class PersonDetailsFragment extends Fragment {
         }
     }
 
+    public void getLocaitonData(){
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("LocationPreferences", Context.MODE_PRIVATE);
+        String latitude = sharedPreferences.getString("latitude", "27.345678");
+        String longitude = sharedPreferences.getString("longitude", "");
+        String distance = sharedPreferences.getString("distance","");
+        String zone = sharedPreferences.getString("zone","");
+        sharedPreferences.edit().clear().apply();
 
+        List<PersondetailModel> persondetailModelList = new ArrayList<>();
+        persondetailModelList.add(new PersondetailModel("id","name", latitude,longitude,distance,zone));
+        allPersonDetailsAdapter = new AllPersonDetailsAdapter(getContext(), persondetailModelList);
+        rvPersonDetails.setAdapter(allPersonDetailsAdapter);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        rvPersonDetails.setLayoutManager(linearLayoutManager);
+
+
+//        binding.tvPDPersonLat.setText(latitude);
+//        binding.tvPDPersonLong.setText(longitude);
+//        binding.tvPDPersonDistance.setText(distance);
+//        binding.tvPDPersonZone.setText(zone);
+
+        Log.e(TAG, latitude);
+        Log.e(TAG, longitude);
+        Log.e(TAG, distance);
+        Log.e(TAG, zone);
+    }
 /*    public void loadFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.frameLayoutContainer, fragment);

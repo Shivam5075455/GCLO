@@ -28,6 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SignupActivity extends AppCompatActivity {
+
+    private static final String TAG = "SignupActivity";
     private FirebaseAuth auth;
     private Button btnSignup;
     private String confirmPassword, password;
@@ -110,6 +112,7 @@ public class SignupActivity extends AppCompatActivity {
                             Toast.makeText(SignupActivity.this, "Account Successfully Created. Please Verify your email id.", Toast.LENGTH_SHORT).show();
                             sendVerificationEmail();
                             progressDialog.dismiss();
+                            generateUserId();
                             startActivity(new Intent(SignupActivity.this, LoginActivity.class));
                             finish();
                         } else {
@@ -191,5 +194,15 @@ public class SignupActivity extends AppCompatActivity {
                 Toast.makeText(SignupActivity.this, "Email sent failed", Toast.LENGTH_SHORT).show();
             });
         }
+    }// end of sendVerificationEmail
+
+    public void generateUserId(){
+        final String prefix = "GCLO2024";
+        int id = 111;
+        String idString = String.valueOf(id);
+        String currentUserId = prefix + idString;
+        id++;
+        Toast.makeText(this, "ID: "+currentUserId, Toast.LENGTH_LONG).show();
+        Log.d(TAG, "generateUserId: " + currentUserId);
     }
 }

@@ -14,7 +14,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Menu;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
@@ -56,6 +55,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -112,6 +112,16 @@ public class MainActivity extends AppCompatActivity {
         bluetoothViewModel = new ViewModelProvider(this).get(BluetoothViewModel.class);
 
         verifyUser();
+
+
+        /*if(GlobalVariable.bluetoothSocket == null){
+            try {
+                GlobalVariable.bluetoothSocket.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }*/
+
 //        checkBluetoothPermission();
     }//oncreate
 
@@ -120,7 +130,11 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         SharedPreferences sharedPreferences = getSharedPreferences("PREFS", MODE_PRIVATE);
         sharedPreferences.edit().putString("profileID", auth.getCurrentUser().getUid()).apply();
+
+
     }//onStart
+
+
 
     @Override
     protected void onDestroy() {
@@ -268,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.menuPersonDetails) {
                 replaceFragments(new PersonDetailsFragment());
                 changeToolbarTitle("Person Details");
-                showInterstitialAd();
+//                showInterstitialAd();
 
             } else if (itemId == R.id.menuProfile) {
                 replaceFragments(new ProfileFragment());

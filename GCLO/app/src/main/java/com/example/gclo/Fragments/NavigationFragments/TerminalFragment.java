@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -80,7 +81,7 @@ public class TerminalFragment extends Fragment {
     private ImageView imgTerminalSend;
     private Button btnConnect, btnM1, btnM2, btnM3, btnM4, btnM5;
     static final String TAG = "RetainedFragment";
-    private RetainedFragment retainedFragment, retainedFragmentBluetoothSocket;
+    private RetainedFragment retainedFragment;
     TerminalMessageAdapter terminalMessageAdapter;
 //    TerminalMessageAdapter terminalMessageAdapterReceiver;
 
@@ -151,8 +152,8 @@ public class TerminalFragment extends Fragment {
             public void onClick(View v) {
                 String message = etTerminalWriteMessage.getText().toString();
                 if (!message.isEmpty()) {
-                    retainedFragment.addMessage(new TerminalMessageModel(message, TerminalMessageModel.sent_by_admin));
-                    messageModelList.add(new TerminalMessageModel(message, TerminalMessageModel.sent_by_admin));
+                    retainedFragment.addMessage(new TerminalMessageModel(message, TerminalMessageModel.sent_by_admin, new Date().getTime()));
+                    messageModelList.add(new TerminalMessageModel(message, TerminalMessageModel.sent_by_admin, new Date().getTime()));
                     terminalMessageAdapter.notifyDataSetChanged();
                     scrollToLast();
 //                    if (outputStream != null) {
@@ -179,6 +180,7 @@ public class TerminalFragment extends Fragment {
                 return false; // Let the system handle the event
             }
         });
+
 
 
         return view;
@@ -254,7 +256,7 @@ public class TerminalFragment extends Fragment {
                     if (GlobalVariable.outputStream != null) {
                         GlobalVariable.outputStream.write(message.getBytes());
                         GlobalVariable.outputStream.flush(); // Flush the stream to ensure data is sent immediately
-                        Log.d(TAG_DEBUG, "Bluetooth message sent");
+                        Log.d(TAG_DEBUG, "Bluetooth message sent " + message);
                     } else {
                         Log.d(TAG_DEBUG, "Output stream is null.");
                     }
@@ -295,8 +297,27 @@ public class TerminalFragment extends Fragment {
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-//                                            retainedFragment.addMessage(new TerminalMessageModel(completeMessage, TerminalMessageModel.received_by_user));
-                                            messageModelList.add(new TerminalMessageModel(completeMessage, TerminalMessageModel.received_by_user));
+                                            if (!completeMessage.startsWith("chat") && !completeMessage.isEmpty()) {
+                                                String latitude="27.123456", longitude="78.987654", distance= "100", zone= "in";
+                                                if(completeMessage.startsWith("lat")){
+                                                    latitude = completeMessage.substring(3);
+                                                }
+                                                if(completeMessage.startsWith("lon")){
+                                                    longitude = completeMessage.substring(3);
+                                                }
+                                                if(completeMessage.startsWith("dist")){
+                                                    distance = completeMessage.substring(4);
+                                                }
+                                                if(completeMessage.startsWith("zone")){
+                                                    zone = completeMessage.substring(4);
+                                                }
+                                                setLocationData(latitude, longitude, distance, zone);
+                                                Log.d(TAG, "Location data received: Latitude: $latitude, Longitude: $longitude, Distance: $distance, Zone: $zone");
+                                                Log.d(TAG_DEBUG,"Latitude: "+latitude);
+                                                retainedFragment.addMessage(new TerminalMessageModel(completeMessage, TerminalMessageModel.received_by_user, new Date().getTime()));
+                                                Log.d(TAG, "retainded fragment receiver message");
+                                                messageModelList.add(new TerminalMessageModel(completeMessage, TerminalMessageModel.received_by_user, new Date().getTime()));
+                                            }
                                             terminalMessageAdapter.notifyDataSetChanged();
                                             scrollToLastReceiver();
                                             Log.d(TAG_DEBUG, "Received message: " + completeMessage);
@@ -307,11 +328,22 @@ public class TerminalFragment extends Fragment {
                             }
                         }
                     } catch (IOException e) {
-                        requireActivity().runOnUiThread(() -> Log.e(TAG_DEBUG, "Error reading from input stream", e));
+                        Log.e(TAG_DEBUG, "Error reading from input stream", e);
                     }
                 }
             }
         }).start();
     }//end of receiveMessage
+
+    public void setLocationData(String lat, String lon, String distance, String zone) {
+// set Loaction(Latitude and Longitude), distance and zone on local storage
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("LocationPreferences", getContext().MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("latitude", lat);
+        editor.putString("longitude", lon);
+        editor.putString("distance", distance);
+        editor.putString("zone", zone);
+        editor.apply();
+    }
 
 }

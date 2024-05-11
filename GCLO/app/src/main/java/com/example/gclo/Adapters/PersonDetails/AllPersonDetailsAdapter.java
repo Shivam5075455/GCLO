@@ -101,7 +101,7 @@ public class AllPersonDetailsAdapter extends RecyclerView.Adapter<AllPersonDetai
             tvpersonLat = itemView.findViewById(R.id.tvPDPersonLat);
             tvpersonLong = itemView.findViewById(R.id.tvPDPersonLong);
             tvpersonDistance = itemView.findViewById(R.id.tvPDPersonDistance);
-            tvpersonIn = itemView.findViewById(R.id.tvPDPersonIn);
+            tvpersonIn = itemView.findViewById(R.id.tvPDPersonZone);
 //            tvpersonOut = itemView.findViewById(R.id.tvPDPersonOut);
             tvPDPersonEmail = itemView.findViewById(R.id.tvPDPersonEmail);
             tvPDPersonGender = itemView.findViewById(R.id.tvPDPersonGender);

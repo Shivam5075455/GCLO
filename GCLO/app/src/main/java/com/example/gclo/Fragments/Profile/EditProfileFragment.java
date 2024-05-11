@@ -48,6 +48,9 @@ import java.util.HashMap;
 public class EditProfileFragment extends Fragment {
     private static final int GALLERY_REQUEST_CODE = 2;
     private static final int REQUEST_CHOOSER = 3;
+
+    final String TAG = "my_debug";
+
     FirebaseAuth auth;
     Button btnCancel, btnSave;
 
@@ -168,6 +171,7 @@ public class EditProfileFragment extends Fragment {
     // get user information from database and show in the page
     public void getUserInfo() {
 //        This function is created to show/display user's data in the EditProfileFragment
+
         DatabaseReference databaseReference = FirebaseDatabase.getInstance("https://gps-application-de939-default-rtdb.firebaseio.com/").getReference("Users").child(firebaseUser.getUid());
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -230,13 +234,11 @@ public class EditProfileFragment extends Fragment {
 
 
     //            public void save () {
-// get data from users and upload changed data on the database
+// get data from users and upload changed data on the database(realtime database)
     public void save(String email, String post, String address, String phoneNumber, String gender) {
 
         DatabaseReference databaseReference = FirebaseDatabase.getInstance("https://gps-application-de939-default-rtdb.firebaseio.com/").getReference("Users").child(firebaseUser.getUid());
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-
-// get the gender
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -246,7 +248,7 @@ public class EditProfileFragment extends Fragment {
                 assert userModel != null;
 
                 HashMap<String, String> hashMap = new HashMap<>();
-//                hashMap.put("id",firebaseUser.getUid());
+                hashMap.put("id","GCLO2024112");
                 hashMap.put("name", userModel.getName());
                 hashMap.put("username", userModel.getUsername());
                 hashMap.put("email", email);
@@ -255,7 +257,8 @@ public class EditProfileFragment extends Fragment {
                 hashMap.put("address", address);
                 hashMap.put("phoneNumber", phoneNumber);
                 hashMap.put("gender", gender);
-                Log.d("Gender", "Selected Gender: " + gender);
+                Log.d(TAG, "Selected Gender: " + gender);
+                Log.d(TAG,"save Image url: "+userModel.getImageUrl());
 
                 databaseReference.setValue(hashMap).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -290,7 +293,6 @@ public class EditProfileFragment extends Fragment {
 //        pickIntent.setType("image/*"); // or use instead of above line
         Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-
         Intent chooseIntent = Intent.createChooser(pickIntent, "Select Image");
         chooseIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{takePhotoIntent});
         startActivityForResult(chooseIntent, REQUEST_CHOOSER);
@@ -318,6 +320,7 @@ public class EditProfileFragment extends Fragment {
                         assert imageBitmap != null;
                         imageUri = getImageUri(requireContext(), imageBitmap);
                         imgEPProfileImage.setImageURI(imageUri);
+                        Log.d(TAG, "onActivityResult: image uri: " + imageUri);
                         uploadProfileImage();
                         Log.e("uploadImage", "Uploaded from camera");
                     }
@@ -337,6 +340,7 @@ public class EditProfileFragment extends Fragment {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Title", null);
+        Log.d(TAG, "getImageUri: local path: " + path);
         return Uri.parse(path);
     }
 
@@ -358,6 +362,7 @@ public class EditProfileFragment extends Fragment {
                     Uri downloadUri = task.getResult();
                     String myUri = downloadUri.toString();
                     saveData(myUri, progressDialog);
+                    Log.d(TAG, "uploadProfileImage: uri: " + myUri);
                     progressDialog.dismiss();
                 } else {
                     progressDialog.dismiss();
@@ -368,7 +373,7 @@ public class EditProfileFragment extends Fragment {
 
     // we have created this method to save the image in the firebase storage
     private void saveData(String myUri, ProgressDialog progressDialog) {
-        final DatabaseReference reference = FirebaseDatabase.getInstance("https://gps-application-de939-default-rtdb.firebaseio.com/").getReference("Users").child(this.firebaseUser.getUid());
+        DatabaseReference reference = FirebaseDatabase.getInstance("https://gps-application-de939-default-rtdb.firebaseio.com/").getReference("Users").child(this.firebaseUser.getUid());
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
 
             @Override
@@ -380,6 +385,7 @@ public class EditProfileFragment extends Fragment {
                     user.setImageUrl(myUri);
                     reference.setValue(user);
                     progressDialog.dismiss();
+                    Log.d(TAG, "saveData: image saved: "+myUri);
                 }
             }
 
