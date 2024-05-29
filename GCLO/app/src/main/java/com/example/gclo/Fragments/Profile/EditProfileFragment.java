@@ -190,7 +190,7 @@ public class EditProfileFragment extends Fragment {
                     String gender = userModel.getGender();
 
                     // get the current user data and save the data into local storage(SharedPreferences Database)
-                    SharedPreferences sharedPreferences = requireContext().getSharedPreferences("Current", Context.MODE_PRIVATE);
+                    SharedPreferences sharedPreferences = requireContext().getSharedPreferences("CurrentUserData", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
 
                     editor.putString("name", name);

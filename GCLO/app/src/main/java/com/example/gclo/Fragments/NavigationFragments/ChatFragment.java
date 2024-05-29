@@ -158,7 +158,7 @@ public class ChatFragment extends Fragment {
                     byte[] buffer = new byte[1024];
                     int bytes;
                     StringBuilder receivedMessage = new StringBuilder();
-                    while (true) {
+//                    while (true) {
                         try {
 
                             while ((bytes = GlobalVariable.inputStream.read(buffer)) > 0) {
@@ -192,7 +192,7 @@ public class ChatFragment extends Fragment {
                         } catch (IOException e) {
 
                         }
-                    }
+//                    }
                 }
             }
         }).start();

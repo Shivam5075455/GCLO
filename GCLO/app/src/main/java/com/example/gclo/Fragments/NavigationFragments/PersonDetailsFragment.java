@@ -202,7 +202,7 @@ public class PersonDetailsFragment extends Fragment {
                             String post = Objects.requireNonNull(userDataSnapshot.child("post").getValue()).toString();
 
 //                            persondetailModelList.add(?new PersondetailModel(id, name, username, email, gender,"27.345678","72.345678","in","200m"));
-                            PersonDatabaseHelper databaseHelper = new PersonDatabaseHelper(getContext());
+                            PersonDatabaseHelper databaseHelper = new PersonDatabaseHelper(requireActivity());
                             databaseHelper.insertPersonData(name, username, email, post, gender.substring(0, 1));
                             Log.e("insertData", "Local data created");
 //                          update the data
@@ -276,19 +276,19 @@ public class PersonDetailsFragment extends Fragment {
     }
 
     public void getLocaitonData(){
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("LocationPreferences", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("LocationPreferences", Context.MODE_PRIVATE);
         String latitude = sharedPreferences.getString("latitude", "27.345678");
         String longitude = sharedPreferences.getString("longitude", "");
         String distance = sharedPreferences.getString("distance","");
         String zone = sharedPreferences.getString("zone","");
         sharedPreferences.edit().clear().apply();
 
-        List<PersondetailModel> persondetailModelList = new ArrayList<>();
-        persondetailModelList.add(new PersondetailModel("id","name", latitude,longitude,distance,zone));
-        allPersonDetailsAdapter = new AllPersonDetailsAdapter(getContext(), persondetailModelList);
-        rvPersonDetails.setAdapter(allPersonDetailsAdapter);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        rvPersonDetails.setLayoutManager(linearLayoutManager);
+//        List<PersondetailModel> persondetailModelList = new ArrayList<>();
+//        persondetailModelList.add(new PersondetailModel("id","name", latitude,longitude,distance,zone));
+//        allPersonDetailsAdapter = new AllPersonDetailsAdapter(getContext(), persondetailModelList);
+//        rvPersonDetails.setAdapter(allPersonDetailsAdapter);
+//        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+//        rvPersonDetails.setLayoutManager(linearLayoutManager);
 
 
 //        binding.tvPDPersonLat.setText(latitude);

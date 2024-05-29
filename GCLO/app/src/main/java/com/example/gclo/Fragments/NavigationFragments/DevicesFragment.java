@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gclo.Adapters.BluetoothAdapter.BtListAdapter;
+import com.example.gclo.BTClien.BluetoothConnection;
 import com.example.gclo.MainActivity;
 import com.example.gclo.Models.BluetoothViewModel;
 import com.example.gclo.Models.BtListModel;
@@ -54,7 +55,7 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
     boolean isPermissionGranted = true;
     UUID MY_UUID = UUID.fromString(Constants.uuid);
 
-//    BluetoothAdapter bluetoothAdapter;
+    //    BluetoothAdapter bluetoothAdapter;
 //        BluetoothSocket bluetoothSocket;
 //    BluetoothDevice bluetoothDevice;
 //    OutputStream outputStream;
@@ -83,12 +84,13 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
         GlobalVariable.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         tvScan.setOnClickListener(view2 -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                checkBluetoothPermission();
+            }
             bluetoothON();
             scan();
         });
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            checkBluetoothPermission();
-        }
+
         // Set up onBackPressed callback
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override
@@ -104,9 +106,10 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GlobalVariable.disconnectBluetoothDevice();
+                GlobalVariable.disconnectBluetoothDevice(getContext());
             }
         });
+        scan();
         return view;
     }//onCreateView
 
@@ -116,9 +119,12 @@ public class DevicesFragment extends Fragment implements BtListAdapter.OnItemCli
         fragmentTransaction.commit();
     }*/
 
-    public void scan() {
 
-        listDevices();
+    public void scan() {
+        Log.d(TAG, "scan: started");
+        if (GlobalVariable.bluetoothAdapter.isEnabled()) {
+            listDevices();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)

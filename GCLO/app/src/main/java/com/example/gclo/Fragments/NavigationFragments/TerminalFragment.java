@@ -146,7 +146,13 @@ public class TerminalFragment extends Fragment {
             throw new RuntimeException(e);
         }
 
+/* Enter credentials to register with hardware
+Name: mynameRon
+Username: myusernameRon1
+Email: myemailron1@gmail.com
+Phone Number: myphone123456
 
+ */
         imgTerminalSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,6 +167,24 @@ public class TerminalFragment extends Fragment {
 //                    }
                     etTerminalWriteMessage.setText("");
                 }
+            }
+        });
+
+        btnM1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                registerCurrentUserWithHardware();
+
+                }catch (Exception e){
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        btnM2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                messageModelList.clear();
             }
         });
 
@@ -181,7 +205,12 @@ public class TerminalFragment extends Fragment {
             }
         });
 
-
+        if (GlobalVariable.bluetoothAdapter == null && GlobalVariable.bluetoothSocket == null) {
+            assert false;
+            if (!GlobalVariable.bluetoothSocket.isConnected()) {
+                Toast.makeText(getContext(), "Bluetooth is not connected", Toast.LENGTH_SHORT).show();
+            }
+        }
 
         return view;
     }//onCreateView
@@ -206,12 +235,6 @@ public class TerminalFragment extends Fragment {
             rvTerminal.smoothScrollToPosition(messageModelList.size() - 1);
         }
 
-    }
-
-    public void scrollToLastReceiver() {
-//        if (!messageModelListReceiver.isEmpty()) {
-//            rvTerminal.smoothScrollToPosition(messageModelListReceiver.size() - 1);
-//        }
     }
 
     private RetainedFragment getOrCreateRetainedFragment() {
@@ -280,57 +303,64 @@ public class TerminalFragment extends Fragment {
                 byte[] buffer = new byte[1024];
                 int bytes;
                 StringBuilder receivedMessage = new StringBuilder();
-                while (true) {
-                    try {
-                        bytes = GlobalVariable.inputStream.read(buffer);
+//                while (true) {
+                try {
+//                        bytes = GlobalVariable.inputStream.read(buffer);
 
-                        // Handle incoming message
-                        while ((bytes = GlobalVariable.inputStream.read(buffer)) != -1) {
-                            String data = new String(buffer, 0, bytes);
-                            receivedMessage.append(data);
-                            // Check for termination character or sequence
-                            if (receivedMessage.toString().endsWith("\n")) {
-                                String completeMessage = receivedMessage.toString().trim(); // Trim to remove whitespace characters
+                    // Handle incoming message
+                    while ((bytes = GlobalVariable.inputStream.read(buffer)) != -1) {
+                        String data = new String(buffer, 0, bytes);
+                        receivedMessage.append(data);
+                        // Check for termination character or sequence
+                        if (receivedMessage.toString().endsWith("\n")) {
+                            String completeMessage = receivedMessage.toString().trim(); // Trim to remove whitespace characters
 
 //                                String message = new String(buffer, 0, bytes);
-                                if (getActivity() != null) {
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (!completeMessage.startsWith("chat") && !completeMessage.isEmpty()) {
-                                                String latitude="27.123456", longitude="78.987654", distance= "100", zone= "in";
-                                                if(completeMessage.startsWith("lat")){
-                                                    latitude = completeMessage.substring(3);
-                                                }
-                                                if(completeMessage.startsWith("lon")){
-                                                    longitude = completeMessage.substring(3);
-                                                }
-                                                if(completeMessage.startsWith("dist")){
-                                                    distance = completeMessage.substring(4);
-                                                }
-                                                if(completeMessage.startsWith("zone")){
-                                                    zone = completeMessage.substring(4);
-                                                }
-                                                setLocationData(latitude, longitude, distance, zone);
-                                                Log.d(TAG, "Location data received: Latitude: $latitude, Longitude: $longitude, Distance: $distance, Zone: $zone");
-                                                Log.d(TAG_DEBUG,"Latitude: "+latitude);
-                                                retainedFragment.addMessage(new TerminalMessageModel(completeMessage, TerminalMessageModel.received_by_user, new Date().getTime()));
-                                                Log.d(TAG, "retainded fragment receiver message");
-                                                messageModelList.add(new TerminalMessageModel(completeMessage, TerminalMessageModel.received_by_user, new Date().getTime()));
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (!completeMessage.startsWith("chat") && !completeMessage.isEmpty()) {
+                                            String latitude = "27.123456", longitude = "78.987654", distance = "100", zone = "in";
+                                            if (completeMessage.startsWith("lat")) {
+                                                latitude = completeMessage.substring(3);
                                             }
-                                            terminalMessageAdapter.notifyDataSetChanged();
-                                            scrollToLastReceiver();
-                                            Log.d(TAG_DEBUG, "Received message: " + completeMessage);
+                                            if (completeMessage.startsWith("lon")) {
+                                                longitude = completeMessage.substring(3);
+                                            }
+                                            if (completeMessage.startsWith("dist")) {
+                                                distance = completeMessage.substring(4);
+                                            }
+                                            if (completeMessage.startsWith("zone")) {
+                                                zone = completeMessage.substring(4);
+                                            }
+                                            if (completeMessage.startsWith("accountverified")) {
+                                                Toast.makeText(getContext(), "You are verified", Toast.LENGTH_SHORT).show();
+                                            }
+                                            setLocationData(latitude, longitude, distance, zone);
+                                            Log.d(TAG, "Location data received: Latitude: $latitude, Longitude: $longitude, Distance: $distance, Zone: $zone");
+                                            Log.d(TAG_DEBUG, "Latitude: " + latitude);
+                                            retainedFragment.addMessage(new TerminalMessageModel(completeMessage, TerminalMessageModel.received_by_user, new Date().getTime()));
+                                            Log.d(TAG, "retainded fragment receiver message");
+                                            messageModelList.add(new TerminalMessageModel(completeMessage, TerminalMessageModel.received_by_user, new Date().getTime()));
                                         }
-                                    });
-                                }
-                                receivedMessage.setLength(0); // Clear the StringBuilder for the next message
+                                        terminalMessageAdapter.notifyDataSetChanged();
+                                        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences(GlobalVariable.SETTING_PREFS_NAME, Context.MODE_PRIVATE);
+                                        boolean autoScroll = sharedPreferences.getBoolean(GlobalVariable.AUTO_SCROLL_KEY, false);
+                                        if (autoScroll) {
+                                            scrollToLast();
+                                        }
+                                        Log.d(TAG_DEBUG, "Received message: " + completeMessage);
+                                    }
+                                });
                             }
+                            receivedMessage.setLength(0); // Clear the StringBuilder for the next message
                         }
-                    } catch (IOException e) {
-                        Log.e(TAG_DEBUG, "Error reading from input stream", e);
                     }
+                } catch (IOException e) {
+                    Log.e(TAG_DEBUG, "Error reading from input stream", e);
                 }
+//                }
             }
         }).start();
     }//end of receiveMessage
@@ -344,6 +374,49 @@ public class TerminalFragment extends Fragment {
         editor.putString("distance", distance);
         editor.putString("zone", zone);
         editor.apply();
+    }
+
+
+    public void registerCurrentUserWithHardware() {
+
+//        Read current user data from local storage SQlite database
+        SharedPreferences sp = requireActivity().getSharedPreferences("CurrentUserData", Context.MODE_PRIVATE);
+        String name = sp.getString("name", "local name");
+        String username = sp.getString("username", "local username");
+        String post = sp.getString("post", "local post");
+        String email = sp.getString("email", "local email");
+        String gender = sp.getString("gender", "");
+        String address = sp.getString("address", "lcoal address");
+        String phoneNumber = sp.getString("phoneNumber", "6162636465");
+
+
+        if (GlobalVariable.bluetoothAdapter != null && GlobalVariable.bluetoothAdapter.isEnabled()
+                && GlobalVariable.bluetoothSocket != null && GlobalVariable.bluetoothSocket.isConnected()
+        ) {
+            sendMessage("currentusername" + username+"\n");
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendMessage("currentname" + name+"\n");
+                }
+            }, 2000);
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendMessage("currentemail" + email+"\n");
+                }
+            }, 4000);
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendMessage("currentphonenumber" + phoneNumber+"\n");
+                }
+            }, 6000);
+        }
+
     }
 
 }

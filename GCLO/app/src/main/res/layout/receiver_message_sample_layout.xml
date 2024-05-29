@@ -20,6 +20,7 @@
         android:layout_margin="8dp"
         android:maxWidth="270dp"
         android:minWidth="50dp"
+        android:textIsSelectable="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/tvReceiverTime"

@@ -22,14 +22,18 @@ public class PersonDatabaseHelper extends SQLiteOpenHelper {
 
     private static String DATABASE_NAME = "GCLO_Database.db";
     private static String TABLE_NAME = "Person_Details"; // for all the persons that ara followed by Admin
+
     private static String PERSON_NAME = "PERSON_NAME";
     private static String PERSON_ID = "PERSON_ID";
     private static String PERSON_GENDER = "PERSON_GENDER";
     private static String PERSON_POST = "PERSON_POST";
-
     private static String PERSON_USERNAME = "PERSON_USERNAME";
     private static String PERSON_EMAIL = "PERSON_EMAIL";
-
+    private static final String LATITUDE = "LATITUDE";
+    private static final String LONGITUDE = "LONGITUDE";
+    private static final String ZONE_IN = "ZONE_IN";
+    private static final String ZONE_OUT = "ZONE_OUT";
+    private static final String DISTANCE = "DISTANCE";
 
     private final static int DATABASE_VERSION = 2;
 
@@ -39,6 +43,19 @@ public class PersonDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+//        "PERSON_GENDER TEXT)");
+//        db.execSQL("CREATE TABLE " + TABLE_NAME + "" +
+//                " (PERSON_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+//                "PERSON_NAME TEXT, " +
+//                "PERSON_USERNAME TEXT NOT NULL UNIQUE, " +
+//                "PERSON_EMAIL TEXT NOT NULL, " +
+//                "PERSON_POST TEXT, " +
+//                "PERSON_GENDER TEXT, " +
+//                "LATITUDE TEXT, " +
+//                "LONGITUDE TEXT, " +
+//                "ZONE_IN TEXT, " +
+//                "DISTACNE TEXT)");
+
 
         db.execSQL("CREATE TABLE " + TABLE_NAME + "" +
                 " (PERSON_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -80,6 +97,10 @@ public class PersonDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(PERSON_EMAIL, email);
         contentValues.put(PERSON_POST, post);
         contentValues.put(PERSON_GENDER, gender);
+
+//        contentValues.put(LATITUDE, latitude);
+
+
         long result = db.insert(TABLE_NAME, null, contentValues);
         db.close();
         return result != -1;
@@ -149,6 +170,7 @@ public class PersonDatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(PERSON_EMAIL, email);
             contentValues.put(PERSON_POST, post);
             contentValues.put(PERSON_GENDER, gender);
+//            contentValues.put(LATITUDE, latitude);
             result = db.update(TABLE_NAME, contentValues, "PERSON_USERNAME = ?", new String[]{username});
             
         }catch (Exception e){
@@ -156,6 +178,7 @@ public class PersonDatabaseHelper extends SQLiteOpenHelper {
         }
         return result > 0;
     }
+
 
     public int deletePersonData(String username) {
         SQLiteDatabase db = this.getWritableDatabase();

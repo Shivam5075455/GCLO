@@ -45,22 +45,24 @@ public class AllPersonDetailsAdapter extends RecyclerView.Adapter<AllPersonDetai
 
         PersondetailModel personDetails = this.persondetailModels.get(position);
 
-        holder.tvpersonName.setText(personDetails.getName());
-        holder.tvPDPersonId.setText(personDetails.getId());
-        holder.tvpersonLong.setText(personDetails.getLongitude());
-        holder.tvpersonLat.setText(personDetails.getLatitude());
         holder.tvPDPersonId.setText(personDetails.getId());
         holder.tvpersonName.setText(personDetails.getName());
         holder.tvPDPersonUsername.setText(personDetails.getUsername());
         holder.tvPDPersonEmail.setText(personDetails.getEmail());
         holder.tvPDPersonGender.setText(personDetails.getGender());
+        holder.tvPDPost.setText(personDetails.getPost());
         holder.tvpersonLat.setText(personDetails.getLatitude());
         holder.tvpersonLong.setText(personDetails.getLongitude());
-        holder.tvPDPost.setText(personDetails.getPost());
-
         holder.tvpersonIn.setText(personDetails.getZoneIn());
-//        holder.tvpersonOut.setText(personDetails.getZoneOut());
         holder.tvpersonDistance.setText(personDetails.getDistance());
+
+
+//        holder.tvPDPersonId.setText(personDetails.getId());
+//        holder.tvpersonName.setText(personDetails.getName());
+//        holder.tvpersonLat.setText(personDetails.getLatitude());
+//        holder.tvpersonLong.setText(personDetails.getLongitude());
+
+//        holder.tvpersonOut.setText(personDetails.getZoneOut());
     }
 
     @Override

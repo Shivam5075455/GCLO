@@ -84,5 +84,7 @@
     <string name="time">time</string>
     <string name="sender">sender</string>
     <string name="receiver">Receiver</string>
+    <string name="verify">Verify</string>
+    <string name="auto_scroll">Auto Scroll</string>
 
 </resources>

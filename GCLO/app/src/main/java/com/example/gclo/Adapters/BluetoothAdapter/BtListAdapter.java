@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.gclo.Models.BtListModel;
 import com.example.gclo.R;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +28,7 @@ public class BtListAdapter extends RecyclerView.Adapter<BtListAdapter.viewHolder
     private int selectedItem = -1; // Track the selected item position
 
     public interface OnItemClickListener {
-        void onItemClick(String deviceAddress);
+        void onItemClick(String deviceAddress) throws IOException;
     }
 
     public BtListAdapter(Context context, List<BtListModel> btListModels, OnItemClickListener listener) {
@@ -92,7 +94,11 @@ public class BtListAdapter extends RecyclerView.Adapter<BtListAdapter.viewHolder
                         // Retrieve the Bluetooth device address at the clicked position
                         String deviceAddress = btListModel.getBtAddress();
                         // Invoke the onItemClick method of the listener interface
-                        listener.onItemClick(deviceAddress);
+                        try {
+                            listener.onItemClick(deviceAddress);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                         setSelectedItem(position);
 
                     }

@@ -42,7 +42,7 @@ import java.util.Objects;
 public class ProfileFragment extends Fragment {
 
     FirebaseAuth auth;
-    Button btnEdit;
+    Button btnEdit,btnVerify;
     FirebaseUser firebaseUser;
     CircleImageView imgProfileImage;
 
@@ -60,6 +60,7 @@ public class ProfileFragment extends Fragment {
         tvAddress = view.findViewById(R.id.tvAddress);
         tvPhoneNumber = view.findViewById(R.id.tvPhoneNumber);
         btnEdit = view.findViewById(R.id.btnEdit);
+        btnVerify = view.findViewById(R.id.btnVerify);
         tvGender = view.findViewById(R.id.tvGender);
         imgProfileImage = view.findViewById(R.id.imgProfileImage);
         siwperefreshlayout = view.findViewById(R.id.siwperefreshlayout);
@@ -73,8 +74,14 @@ public class ProfileFragment extends Fragment {
         readLocalCurrentUserData();
         swipetoRefresh();
 
+        TerminalFragment terminalFragment = new TerminalFragment();
         btnEdit.setOnClickListener(v -> replaceFragment(new EditProfileFragment()));
-
+        btnVerify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                terminalFragment.registerCurrentUserWithHardware();
+            }
+        });
         Toast.makeText(getContext(), "Swipe to refresh", Toast.LENGTH_SHORT).show();
         
         // Set up onBackPressed callback
@@ -105,7 +112,7 @@ public class ProfileFragment extends Fragment {
     public void readLocalCurrentUserData() {
 
 //        Read current user data from local storage SQlite database
-        SharedPreferences sp = getContext().getSharedPreferences("Current", Context.MODE_PRIVATE);
+        SharedPreferences sp = getContext().getSharedPreferences("CurrentUserData", Context.MODE_PRIVATE);
         String name = sp.getString("name", "local name");
         String username = sp.getString("username", "local username");
         String post = sp.getString("post", "local post");

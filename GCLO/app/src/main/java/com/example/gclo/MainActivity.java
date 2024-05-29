@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 //        closeBluetoothAdapter();
-        GlobalVariable.disconnectBluetoothDevice();
+        GlobalVariable.disconnectBluetoothDevice(this);
     }//onDestroy
 
     public void showExitConfirmationDialog() {

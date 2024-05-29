@@ -1,9 +1,14 @@
 package com.example.gclo.Fragments.NavigationFragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
@@ -12,12 +17,18 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.gclo.MainActivity;
 import com.example.gclo.R;
 import com.example.gclo.Utility.GlobalVariable;
+import com.example.gclo.databinding.FragmentSettingBinding;
 
 public class SettingFragment extends Fragment {
 
+    private static final String TAG = "my_debug";
+
+
+    FragmentSettingBinding binding;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setting, container, false);
+        binding = FragmentSettingBinding.bind(view);
 
         // Set up onBackPressed callback
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
@@ -36,9 +47,30 @@ public class SettingFragment extends Fragment {
             }
         });
 
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences(GlobalVariable.SETTING_PREFS_NAME, Context.MODE_PRIVATE);
+        loadCheckboxState(binding.switchAutoScroll, sharedPreferences);
+        autoScrollTerminal(binding.switchAutoScroll, sharedPreferences);
+
         return view;
     }
 
+    public static void saveCheckboxState(CompoundButton compoundButton, SharedPreferences sharedPreferences){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(GlobalVariable.AUTO_SCROLL_KEY, compoundButton.isChecked());
+        editor.apply();
+    }
+
+    public static void loadCheckboxState(CompoundButton compoundButton, SharedPreferences sharedPreferences){
+        boolean isToggleed = sharedPreferences.getBoolean(GlobalVariable.AUTO_SCROLL_KEY, false);
+        compoundButton.setChecked(isToggleed);
+    }
+
+    public void autoScrollTerminal(CompoundButton compoundButton, SharedPreferences sharedPreferences) {
+        binding.switchAutoScroll.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            saveCheckboxState(compoundButton, sharedPreferences);
+            Log.d(TAG, "autoScrollTerminal: " + compoundButton);
+        });
+    }
 /*    public void loadFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getParentFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.frameLayoutContainer, fragment);
