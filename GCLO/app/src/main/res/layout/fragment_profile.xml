@@ -12,6 +12,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+    <RelativeLayout
+        android:id="@+id/relatielayoutImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        >
+
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/imgProfileImage"
             android:layout_width="130dp"
@@ -21,7 +30,7 @@
             android:layout_alignParentEnd="true"
             android:layout_gravity="center"
             android:layout_marginStart="141dp"
-            android:layout_marginTop="150dp"
+            android:layout_marginTop="145dp"
             android:layout_marginEnd="140dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_launcher_background"
@@ -46,18 +55,16 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tvUserName"
             android:gravity="center"
-
             android:hint="@string/post"
-
             android:text="@string/post"
-
             android:textColor="@color/black" />
+    </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tvPost"
+            android:layout_below="@+id/relatielayoutImage"
             android:layout_marginStart="20dp"
             android:layout_marginTop="32dp"
             android:layout_marginEnd="20dp"
@@ -103,7 +110,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dim_10"
-
                 android:hint="@string/phone"
                 android:textColor="@color/black"
                 android:textSize="17sp" />
@@ -114,15 +120,16 @@
             android:id="@+id/btnVerify"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_above="@+id/btnEdit"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginStart="50dp"
             android:layout_marginEnd="50dp"
             android:layout_marginBottom="1dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_above="@+id/btnEdit"
             android:backgroundTint="@color/app_theme"
             android:elevation="5dp"
             android:text="@string/verify"
+            android:visibility="gone"
             app:cornerRadius="10dp" />
 
         <Button

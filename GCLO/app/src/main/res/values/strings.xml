@@ -46,7 +46,7 @@
     <string name="post">Post</string>
     <string name="profile">Profile</string>
     <string name="project_id">gps-application-de939</string>
-    <string name="receive_email">You will receive an reset password link on your email id.</string>
+    <string name="receive_email">You will receive a reset password link on your email id.</string>
 
     <string name="register">Registeration</string>
 
@@ -86,5 +86,16 @@
     <string name="receiver">Receiver</string>
     <string name="verify">Verify</string>
     <string name="auto_scroll">Auto Scroll</string>
+    <string name="person_id">Person Id</string>
+    <string name="female">Female</string>
+    <string name="terminal">Terminal</string>
+    <string name="devices">Devices</string>
+    <string name="map">Map</string>
+    <string name="chat">Chat</string>
+    <string name="person_details">Person Details</string>
+    <string name="other">Other</string>
+    <string name="setting">Setting</string>
+    <string name="about_us">About us</string>
+    <string name="delete_account">Delete Account</string>
 
 </resources>

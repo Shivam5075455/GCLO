@@ -14,7 +14,8 @@
         android:id="@+id/btnVerify"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Verify"/>
+        android:text="Verify"
+        android:visibility="gone" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/switchAutoScroll"

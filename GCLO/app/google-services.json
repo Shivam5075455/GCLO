@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:225518683256:android:3e56a1a70efbcceb20198d",
         "android_client_info": {
-          "package_name": "com.example.gclo"
+          "package_name": "com.terminal.gclo"
         }
       },
       "oauth_client": [],
@@ -29,7 +29,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:225518683256:android:8234305d11b2725b20198d",
         "android_client_info": {
-          "package_name": "com.example.gpsapplication"
+          "package_name": "com.terminal.gpsapplication"
         }
       },
       "oauth_client": [],

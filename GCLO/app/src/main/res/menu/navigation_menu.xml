@@ -1,50 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/menuTerminal"
             android:icon="@drawable/terminal_24"
-            android:title="Terminal" />
+            android:title="@string/terminal" />
         <item
             android:id="@+id/menuDevices"
             android:icon="@drawable/bluetooth_device"
-            android:title="Devices" />
+            android:title="@string/devices" />
         <item
             android:id="@+id/menuMap"
             android:icon="@drawable/google_maps"
-            android:title="Map" />
+            android:title="@string/map" />
         <item
             android:id="@+id/menuChat"
             android:icon="@drawable/chat_24"
-            android:title="Chat" />
+            android:title="@string/chat" />
         <item
             android:id="@+id/menuPersonDetails"
             android:icon="@drawable/person_detail"
-            android:title="Person Details" />
+            android:title="@string/person_details" />
 
     </group>
     <item
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:title="Group 2">
+        android:title="@string/other">
         <menu>
             <item
                 android:id="@+id/menuSetting"
                 android:icon="@drawable/settings_24"
-                android:title="Setting" />
+                android:title="@string/setting" />
             <item
                 android:id="@+id/menuProfile"
                 android:icon="@drawable/user"
-                android:title="Profile" />
+                android:title="@string/profile" />
             <item
                 android:id="@+id/menuAboutus"
                 android:icon="@drawable/about_us"
-                android:title="About us" />
+                android:title="@string/about_us" />
             <item
                 android:id="@+id/menuLogout"
                 android:icon="@drawable/logout"
-                android:title="Logout" />
+                android:title="@string/logout" />
         </menu>
     </item>
 </menu>

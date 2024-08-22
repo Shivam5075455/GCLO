@@ -49,7 +49,7 @@
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginEnd="@dimen/dim_10"
             android:orientation="vertical">
 
@@ -60,11 +60,13 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="@dimen/dim_5"
+                android:autofillHints="name"
                 android:background="@color/edit_text_background"
                 android:drawableStart="@drawable/person"
                 android:drawablePadding="8dp"
                 android:drawableTint="@color/app_theme"
                 android:hint="@string/name"
+                android:inputType="textPersonName"
                 android:padding="10dp" />
 
             <EditText
@@ -74,11 +76,13 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="@dimen/dim_5"
+                android:autofillHints="username"
                 android:background="@color/edit_text_background"
                 android:drawableStart="@drawable/person"
                 android:drawablePadding="8dp"
                 android:drawableTint="@color/app_theme"
                 android:hint="@string/username"
+                android:inputType="textPersonName"
                 android:padding="10dp" />
 
             <EditText
@@ -96,7 +100,7 @@
                 android:drawableTint="@color/app_theme"
                 android:ems="10"
                 android:hint="@string/email"
-                android:inputType="text"
+                android:inputType="text|textEmailAddress"
                 android:padding="10dp"
                 android:paddingHorizontal="10dp"
                 android:textAlignment="textStart" />

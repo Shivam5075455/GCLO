@@ -17,15 +17,12 @@
             android:layout_margin="@dimen/dim_10"
             app:cardCornerRadius="10dp"
             app:cardElevation="@dimen/dim_5"
-
-
             app:strokeColor="@android:color/transparent">
 
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/dim_3"
                 android:layout_marginTop="@dimen/dim_10"
                 android:background="@color/white"
                 android:orientation="vertical">
@@ -49,12 +46,12 @@
 
                     <TextView
                         android:id="@+id/tvPDPersonId"
-                        android:layout_width="@dimen/dim_200"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/dim_5"
                         android:layout_marginTop="@dimen/dim_5"
                         android:layout_marginEnd="@dimen/dim_5"
-                        android:text="1234"
+                        android:text="@string/person_id"
                         android:textIsSelectable="true" />
 
 
@@ -64,10 +61,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/dim_5"
                         android:layout_marginTop="@dimen/dim_5"
-                        android:layout_marginEnd="@dimen/dim_5"
+                        android:layout_marginEnd="@dimen/dim_10"
                         android:layout_weight="1"
                         android:gravity="end"
-                        android:text="Post" />
+                        android:text="@string/post" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -78,11 +75,11 @@
 
                     <TextView
                         android:id="@+id/tvPDPersonName"
-                        android:layout_width="@dimen/dim_300"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/dim_5"
                         android:layout_marginTop="@dimen/dim_10"
-                        android:text="Name"
+                        android:text="@string/name"
                         android:textIsSelectable="true"
                         android:textStyle="bold" />
 
@@ -95,7 +92,7 @@
                         android:layout_marginEnd="@dimen/dim_10"
                         android:layout_weight="1"
                         android:gravity="end"
-                        android:text="Female"
+                        android:text="@string/female"
                         android:textAlignment="textEnd"
                         android:textIsSelectable="true"
                         android:textStyle="bold" />
@@ -105,7 +102,7 @@
 
                 <TextView
                     android:id="@+id/tvPDPersonUsername"
-                    android:layout_width="@dimen/dim_375"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/dim_5"
                     android:layout_marginTop="@dimen/dim_10"
@@ -116,7 +113,7 @@
 
                 <TextView
                     android:id="@+id/tvPDPersonEmail"
-                    android:layout_width="@dimen/dim_375"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/dim_5"
                     android:layout_marginTop="@dimen/dim_10"
@@ -204,7 +201,7 @@
                     <!--                    android:textIsSelectable="true" />-->
 
                     <TextView
-                        android:layout_width="@dimen/dim_65"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/dim_20"
                         android:layout_marginTop="@dimen/dim_10"
@@ -217,7 +214,7 @@
                         android:id="@+id/tvPDPersonDistance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/dim_5"
+                        android:layout_marginStart="@dimen/dim_10"
                         android:layout_marginTop="@dimen/dim_10"
                         android:layout_weight="2"
                         android:text="dis"

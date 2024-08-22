@@ -85,6 +85,7 @@
 
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -113,5 +114,18 @@
             android:text="@string/save"
             app:cornerRadius="10dp" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btnDeleteAccount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/delete_account"
+        app:cornerRadius="10dp"
+        android:backgroundTint="@color/light_red"
+        android:layout_marginTop="@dimen/dim_30"
+        android:layout_marginEnd="@dimen/dim_16"
+        android:layout_marginStart="@dimen/dim_16"
+
+        />
 
 </LinearLayout>

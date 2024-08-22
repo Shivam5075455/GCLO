@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="female" />
+    <string name="devices">Devices</string>
+    <string name="map">Map</string>
+    <string name="chat">Chat</string>
+    <string name="person_details">Person Details</string>
+    <string name="other">Other</string>
+    <string name="setting">Setting</string>
+    <string name="about_us">About us</string>
+    <string name="delete_account">Delete Account</string>
+</resources>
